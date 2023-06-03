@@ -10,29 +10,52 @@ use crossterm::{
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen},
 };
+use crate::io::Stdout;
 
-pub fn start_app() -> Result<(), Box<dyn std::error::Error>>{
+use crate::ui;
+use crate::block;
 
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+pub struct App{
+    // blocks: Vec<Box<dyn Block>>,
+}
 
-    terminal.draw(|f| {
-        let size = f.size();
-        let block = Block::default()
-            .title("Block")
-            .borders(Borders::ALL);
-        f.render_widget(block, size);
-    })?;
+impl App {
+    pub fn run(&mut self) -> Result<(), Box<dyn std::error::Error>>{
+        let mut stdout = io::stdout();
+        execute!(stdout, EnterAlternateScreen, EnableMouseCapture).expect("stdout expect");
+        let backend = CrosstermBackend::new(stdout);
+        let mut terminal = Terminal::new(backend).expect("terminal expect");
+        self.init_blocks();
 
-    thread::sleep(Duration::from_millis(5000));
+        loop {
+            terminal.draw(|f| {
+                let size = f.size();
+                let block = Block::default()
+                    .title("Block")
+                    .borders(Borders::ALL);
+                f.render_widget(block, size);
+            })?;
+        
+            thread::sleep(Duration::from_millis(5000));
+            break;
+        }
+    
+        execute!(
+            terminal.backend_mut(),
+            LeaveAlternateScreen,
+            DisableMouseCapture
+        )?;
+        terminal.show_cursor()?;
+        Ok(())
+    }
 
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
-    Ok(())
+    fn draw(&self){
+
+    }
+
+    fn init_blocks(&self){
+        let rows: i16 = 8;
+        let columns: i16 = 8;
+
+    }
 }

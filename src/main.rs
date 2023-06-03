@@ -5,20 +5,16 @@ use crossterm::{
 use std::io;
 
 mod app;
+mod ui;
+mod block;
 
 fn main() -> Result<(), io::Error> {
     enable_raw_mode().expect("Enable raw mode expect");
 
-    app::start_app().expect("start app ");
+    let mut app: app::App = app::App {  };
+    app.run().expect("Run expected");
 
-    // restore terminal
     disable_raw_mode()?;
-    // execute!(
-    //     terminal.backend_mut(),
-    //     LeaveAlternateScreen,
-    //     DisableMouseCapture
-    // )?;
-    // terminal.show_cursor()?;
 
     Ok(())
 }
