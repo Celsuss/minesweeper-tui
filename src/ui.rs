@@ -5,25 +5,23 @@ use tui::{
     Frame,
 };
 
-pub struct Screen{
-    pub components: Vec<Box<dyn Draw>>,
+pub struct Screen<B>
+where
+    B: Backend{
+    pub components: Vec<Box<dyn Draw<B>>>,
     block_chunks: Vec<Layout>,
 }
 
-pub trait Draw{
-    fn draw(&self);
+pub trait Draw<B: Backend>{
+    fn draw(&self, frame: &mut Frame<B>);
 }
 
-impl Screen {
-    pub fn draw_components(&self) {
+impl<B: Backend> Screen<B>{
+    pub fn draw_components(&self, frame: &mut Frame<B>) {
         for component in self.components.iter() {
-            component.draw();
+            // component.draw();
         }
     }
-
-    // pub fn draw_ui(&self, f: &mut Frame<B>) {
-
-    // }
 
     pub fn update_chunks(&self){
         // Update all the chunks

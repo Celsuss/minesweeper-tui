@@ -1,3 +1,9 @@
+use tui::{
+    Frame,
+    backend::{Backend},
+    layout::{Rect, Layout, Direction, Constraint}
+};
+
 use crate::{
     ui::{Draw}
 };
@@ -10,9 +16,22 @@ pub struct Cell {
     has_flag: bool,
 }
 
-impl Draw for Cell {
-    fn draw(&self) {
+impl<B: Backend> Draw<B> for Cell { 
+    fn draw(&self, frame: &mut Frame<B>) {
         // code to actually draw a select box
+        let size: Rect = frame.size();
+        let margin = 2;
+
+        let root_chunk = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(margin)
+            .constraints(
+                [
+                    Constraint::Length(30),   // Channels
+                ]
+                .as_ref(),
+            )
+            .split(size);
     }
 }
 
