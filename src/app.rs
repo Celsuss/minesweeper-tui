@@ -1,6 +1,6 @@
 use std::{io, thread, time::Duration};
 use tui::{
-    backend::CrosstermBackend,
+    backend::{CrosstermBackend, Backend},
     widgets::{Widget, Block, Borders},
     layout::{Layout, Constraint, Direction},
     Terminal
@@ -19,7 +19,7 @@ use crate::{
 
 pub struct App{
     // blocks: Vec<Box<dyn Cell>>
-    cells: Vec<Box<Cell>>
+    cells: Vec<Box<Cell>>,
 }
 
 impl App {
@@ -36,18 +36,14 @@ impl App {
         let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend).expect("terminal expect");
 
+        let screen: Screen<CrosstermBackend<Stdout>> = Screen::new();
+
         // Init game grid cells
-        self.init_cells();
+        self.init_cells(12, 12);
 
         // Game loop
         loop {
-            terminal.draw(|f| {
-                let size = f.size();
-                let block = Block::default()
-                    .title("Minesweeper")
-                    .borders(Borders::ALL);
-                f.render_widget(block, size);
-            })?;
+            screen.draw_ui(&mut terminal)?;
         
             thread::sleep(Duration::from_millis(5000));
             break;
@@ -62,14 +58,7 @@ impl App {
         Ok(())
     }
 
-    fn draw(&self){
-
-    }
-
-    fn init_cells(&mut self){
-        let rows: i16 = 8;
-        let columns: i16 = 8;
-
+    fn init_cells(&mut self, rows: i16, columns: i16){
         // Create cells
         for i in 0..columns {
             for j in 0..rows {
