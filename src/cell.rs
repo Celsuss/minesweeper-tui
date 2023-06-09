@@ -1,7 +1,10 @@
 use tui::{
     Frame,
     backend::{Backend},
-    layout::{Rect, Layout, Direction, Constraint}
+    layout::{Rect, Layout, Direction, Constraint},
+    widgets::{Block, Borders},
+    text::{Span},
+    style::{Style, Color}
 };
 
 use crate::{
@@ -17,21 +20,12 @@ pub struct Cell {
 }
 
 impl<B: Backend> Draw<B> for Cell { 
-    fn draw(&self, frame: &mut Frame<B>) {
+    fn draw(&self, frame: &mut Frame<B>, chunk: Rect) {
         // code to actually draw a select box
-        let size: Rect = frame.size();
-        let margin = 2;
-
-        let root_chunk = Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(margin)
-            .constraints(
-                [
-                    Constraint::Length(30),   // Channels
-                ]
-                .as_ref(),
-            )
-            .split(size);
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Gray));
+        frame.render_widget(block, chunk);
     }
 }
 

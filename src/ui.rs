@@ -5,28 +5,27 @@ use tui::{
     Frame,
     Terminal,
 };
-use std::{error::Error, io};
+use std::{io};
 
-pub struct Screen<B>
-where
-    B: Backend{
-    pub components: Vec<Box<dyn Draw<B>>>,
-    block_chunks: Vec<Layout>,
+use crate::app::App;
+
+pub struct Screen{
+
 }
 
 pub trait Draw<B: Backend>{
-    fn draw(&self, frame: &mut Frame<B>);
+    fn draw(&self, frame: &mut Frame<B>, chunk: Rect);
 }
 
-impl<B: Backend> Screen<B>{
+impl Screen{
     pub fn new() -> Self{
         Self {
-            components: Vec::new(),
-            block_chunks: Vec::new()
+            
         }
     }
 
-    pub fn draw_ui(&self, terminal: &mut Terminal<B>) -> io::Result<()> {
+    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board_width: i16, board_height: i16) -> io::Result<()> {
+        println!("test");
         terminal.draw(|f| {
             let size = f.size();
             let block = Block::default()
@@ -34,39 +33,53 @@ impl<B: Backend> Screen<B>{
                 .borders(Borders::ALL);
             f.render_widget(block, size);
 
-            self.draw_components(f);
+            self.draw_board(f, app, board_width, board_height);
         })?;
 
         Ok(())
     }
 
-    fn draw_components(&self, frame: &mut Frame<B>) {
+    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, board_width: i16, board_height: i16) {
         let root_chunk = self.get_root_chunk(frame);
-
-        for component in self.components.iter() {
-            component.draw(frame);
+        
+        // TODO: Fix this
+        // Create the constraints
+        let mut constraints = vec![];
+        let mut i: i16 = 0;
+        while i < board_width {
+            constraints.push(Constraint::Percentage(100 / (board_width as u16)));
+            i = i+1;
         }
+
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            // .constraints(constraints.as_ref())
+            .constraints([
+                Constraint::Percentage(50),
+                Constraint::Percentage(50),
+            ])
+            .margin(10)
+            .split(frame.size());
+
+        app.get_cells()[0].draw(frame, chunks[0]);
+        app.get_cells()[0].draw(frame, chunks[1]);
+
+        // i = 0;
+        // for component in app.get_cells().iter() {
+        //     component.draw(frame, chunks[0]);
+        //     break;
+        // }
     }
 
-    fn get_root_chunk(&self, frame: &mut Frame<B>) -> Vec<Rect>{
+    fn get_root_chunk<B: Backend>(&self, frame: &mut Frame<B>) -> Vec<Rect>{
         let size: Rect = frame.size();
         let margin = 2;
 
         let root_chunk = Layout::default()
             .direction(Direction::Horizontal)
             .margin(margin)
-            .constraints(
-                [
-                    Constraint::Length(30),   // Channels
-                ]
-                .as_ref(),
-            )
             .split(size);
         
         root_chunk
-    }
-
-    pub fn update_chunks(&self){
-        // Update all the chunks
     }
 }
