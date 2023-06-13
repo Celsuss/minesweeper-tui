@@ -1,6 +1,6 @@
 use std::{io, thread, time::Duration};
 use tui::{
-    backend::{CrosstermBackend, Backend},
+    backend::{CrosstermBackend},
     Terminal
 };
 use crossterm::{
@@ -8,7 +8,6 @@ use crossterm::{
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen},
 };
-use crate::{io::Stdout, ui::Draw};
 
 use crate::{
     ui::{Screen},
@@ -16,8 +15,7 @@ use crate::{
 };
 
 pub struct App{
-    // blocks: Vec<Box<dyn Cell>>
-    cells: Vec<Box<Cell>>,
+    cells: Vec<Cell>,
     board_width: i16,
     board_height: i16,
 }
@@ -46,7 +44,7 @@ impl App {
 
         // Game loop
         loop {
-            screen.draw_ui(&mut terminal, &self, self.board_width, self.board_height).expect("draw ui expect");
+            screen.draw_ui(&mut terminal, self, self.board_width, self.board_height).expect("draw ui expect");
         
             thread::sleep(Duration::from_millis(5000));
             break;
@@ -61,7 +59,7 @@ impl App {
         Ok(())
     }
 
-    pub fn get_cells(&self) -> &Vec<Box<Cell>> {
+    pub fn get_cells(&self) -> &Vec<Cell> {
         &self.cells
     }
 
@@ -69,7 +67,7 @@ impl App {
         // Create cells
         for _i in 0..columns {
             for _j in 0..rows {
-                self.cells.push(Box::new(Cell::new(16, 16)));
+                self.cells.push(Cell::new(16, 16));
             }
         }
     }

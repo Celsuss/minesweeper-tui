@@ -40,15 +40,13 @@ impl Screen{
     }
 
     fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, board_width: i16, board_height: i16) {
-        let root_chunk = self.get_root_chunk(frame);
-        
         // TODO: Fix this
         // Create the constraints
         let mut constraints = vec![];
         let mut i: i16 = 0;
         while i < board_width {
             constraints.push(Constraint::Percentage(100 / (board_width as u16)));
-            i = i+1;
+            i += 1;
         }
 
         let chunks = Layout::default()
@@ -58,7 +56,7 @@ impl Screen{
                 Constraint::Percentage(50),
                 Constraint::Percentage(50),
             ])
-            .margin(10)
+            .margin(2)
             .split(frame.size());
 
         app.get_cells()[0].draw(frame, chunks[0]);
@@ -69,17 +67,5 @@ impl Screen{
         //     component.draw(frame, chunks[0]);
         //     break;
         // }
-    }
-
-    fn get_root_chunk<B: Backend>(&self, frame: &mut Frame<B>) -> Vec<Rect>{
-        let size: Rect = frame.size();
-        let margin = 2;
-
-        let root_chunk = Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(margin)
-            .split(size);
-        
-        root_chunk
     }
 }
