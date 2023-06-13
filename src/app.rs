@@ -1,4 +1,4 @@
-use std::{io, thread, time::Duration};
+use std::{io, thread, time::Duration, sync::mpsc::Receiver};
 use tui::{
     backend::{CrosstermBackend},
     Terminal
@@ -12,6 +12,7 @@ use crossterm::{
 use crate::{
     ui::{Screen},
     cell::{Cell},
+    input_listener::{InputEvent},
 };
 
 pub struct App{
@@ -29,7 +30,7 @@ impl App {
         }
     }
 
-    pub fn run(&mut self) -> Result<(), Box<dyn std::error::Error>>{
+    pub fn run(&mut self, rx: &Receiver<InputEvent>) -> Result<(), Box<dyn std::error::Error>>{
         // Init stuff for rendering
         let mut stdout = io::stdout();
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture).expect("stdout expect");
@@ -43,12 +44,10 @@ impl App {
         self.init_cells(10, 10);
 
         // Game loop
-        loop {
+        // loop {
             screen.draw_ui(&mut terminal, self, self.board_width, self.board_height).expect("draw ui expect");
-        
             thread::sleep(Duration::from_millis(5000));
-            break;
-        }
+        // }
     
         execute!(
             terminal.backend_mut(),
