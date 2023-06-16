@@ -12,7 +12,7 @@ use crossterm::{
 use crate::{
     ui::{Screen},
     cell::{Cell},
-    input_listener::{InputEvent},
+    input_listener::{InputEvent, InputListener},
 };
 
 pub struct App{
@@ -37,17 +37,21 @@ impl App {
         let backend = CrosstermBackend::new(stdout);
         let mut terminal = Terminal::new(backend).expect("terminal expect");
 
-        // let mut screen: Screen<CrosstermBackend<Stdout>> = Screen::new();
         let screen: Screen = Screen::new();
+        let input_listener: InputListener = InputListener::new(rx);
 
         // Init game grid cells
         self.init_cells(10, 10);
 
         // Game loop
-        // loop {
+        loop {
             screen.draw_ui(&mut terminal, self, self.board_width, self.board_height).expect("draw ui expect");
             thread::sleep(Duration::from_millis(5000));
-        // }
+
+            if input_listener.quit(){
+                break;
+            }
+        }
     
         execute!(
             terminal.backend_mut(),
