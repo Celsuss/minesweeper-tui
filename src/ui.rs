@@ -3,7 +3,7 @@ use tui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     widgets::{Block, Borders, Paragraph, Wrap},
     style::{Style, Color, Modifier},
-    text::Span,
+    text::{Spans, Span},
     Frame,
     Terminal,
 };
@@ -39,7 +39,7 @@ impl Screen{
                 .constraints(
                     [Constraint::Percentage(10),
                      Constraint::Percentage(90)].as_ref())
-                .margin(2)
+                .margin(1)
                 .split(f.size());
 
             self.draw_top_menu(f, app, chunks[0]);
@@ -67,14 +67,30 @@ impl Screen{
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::Gray));
 
-        let span = Span::styled(
-            "Score: {score}",
-            Style::default()
-                .fg(Color::Yellow)
-                .add_modifier(Modifier::BOLD)
-        );
+        let spans = Spans::from(vec![
+            Span::styled(
+                "Score: {score}",
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD)
+            ),
+            Span::raw(" "),
+            Span::styled(
+                "Time: {time}",
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD)
+            ),
+        ]);
 
-        let paragraph = Paragraph::new(span)
+        // let span = Span::styled(
+        //     "Score: {score}",
+        //     Style::default()
+        //         .fg(Color::Yellow)
+        //         .add_modifier(Modifier::BOLD)
+        // );
+
+        let paragraph = Paragraph::new(spans)
             .block(block)
             .alignment(Alignment::Center)
             .wrap(Wrap { trim: true });
@@ -94,7 +110,6 @@ impl Screen{
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints(constraints.as_ref())
-            .margin(2)
             .split(root_chunk);
 
         let mut cell_index: usize = 0;
