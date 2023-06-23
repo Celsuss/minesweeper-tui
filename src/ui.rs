@@ -1,7 +1,9 @@
 use tui::{
     backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
-    widgets::{Block, Borders},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    widgets::{Block, Borders, Paragraph, Wrap},
+    style::{Style, Color, Modifier},
+    text::Span,
     Frame,
     Terminal,
 };
@@ -31,13 +33,56 @@ impl Screen{
                 .borders(Borders::ALL);
             f.render_widget(block, size);
 
-            self.draw_board(f, app, board_width, board_height);
+            // TODO: Draw top menu and board
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints(
+                    [Constraint::Percentage(10),
+                     Constraint::Percentage(90)].as_ref())
+                .margin(2)
+                .split(f.size());
+
+            self.draw_top_menu(f, app, chunks[0]);
+            self.draw_board(f, app, chunks[1], board_width, board_height);
         })?;
 
         Ok(())
     }
 
-    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, board_width: i16, board_height: i16) {
+    fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect){
+        // TODO: Draw score, timer and maybe more
+
+        let score = app.get_score();
+
+        // Create the constraints
+        let mut constraints = vec![];
+        constraints.push(Constraint::Percentage(100));
+
+        let chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(constraints.as_ref())
+            .split(root_chunk);
+
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Gray));
+
+        let span = Span::styled(
+            "Score: {score}",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD)
+        );
+
+        let paragraph = Paragraph::new(span)
+            .block(block)
+            .alignment(Alignment::Center)
+            .wrap(Wrap { trim: true });
+
+        frame.render_widget(paragraph, chunks[0]);
+    }
+
+    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect, board_width: i16, board_height: i16) {
         // Create the vertical constraints
         let mut constraints = vec![];
         let mut i: i16 = 0;
@@ -50,10 +95,9 @@ impl Screen{
             .direction(Direction::Vertical)
             .constraints(constraints.as_ref())
             .margin(2)
-            .split(frame.size());
+            .split(root_chunk);
 
         let mut cell_index: usize = 0;
-
         for chunk in chunks{
             self.draw_horizontal_cells(frame, app, chunk, board_width, &mut cell_index);
         }

@@ -19,6 +19,7 @@ pub struct App{
     cells: Vec<Cell>,
     board_width: i16,
     board_height: i16,
+    score: i16,
 }
 
 impl App {
@@ -27,6 +28,7 @@ impl App {
             cells: Vec::new(),
             board_width: 9,
             board_height: 9,
+            score: 0,
         }
     }
 
@@ -63,6 +65,10 @@ impl App {
 
     pub fn get_cells(&self) -> &Vec<Cell> {
         &self.cells
+    }
+
+    pub fn get_score(&self) -> i16 {
+        self.score
     }
 
     fn init_cells(&mut self, rows: i16, columns: i16){
