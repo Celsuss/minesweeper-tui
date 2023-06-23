@@ -18,22 +18,23 @@ pub struct Cell {
     has_flag: bool,
 }
 
-impl<B: Backend> Draw<B> for Cell { 
+impl<B: Backend> Draw<B> for Cell {
     fn draw(&self, frame: &mut Frame<B>, chunk: Rect) {
         // code to actually draw a select box
         let block = Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::Gray));
         frame.render_widget(block, chunk);
+        // TODO: Add assertions so block is not of no size.
     }
 }
 
 impl Cell {
     pub fn new(width: i16, height: i16) -> Self {
-        Self { 
-            width: (width), 
-            height: (height), 
-            value: (0), 
+        Self {
+            width: (width),
+            height: (height),
+            value: (0),
             is_bomb: (false),
             has_flag: (false)
         }

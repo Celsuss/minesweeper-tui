@@ -19,7 +19,7 @@ pub struct InputListener<'a> {
 
 impl<'a> InputListener<'a> {
     pub fn new(rx: &'a mpsc::Receiver<InputEvent>,) -> Self {
-        InputListener { 
+        InputListener {
             rx
         }
     }
@@ -47,7 +47,7 @@ impl<'a> InputListener<'a> {
 pub fn listen_for_input(tx: &mpsc::Sender<InputEvent>){
     let mut last_tick: Instant = Instant::now();
     let tick_rate: Duration = Duration::from_millis(200);
-    
+
     loop {
         let timeout: Duration = tick_rate
             .checked_sub(last_tick.elapsed())
@@ -62,6 +62,5 @@ pub fn listen_for_input(tx: &mpsc::Sender<InputEvent>){
         if last_tick.elapsed() >= tick_rate {
             last_tick = Instant::now();
         }
-    
     }
 }
