@@ -4,7 +4,7 @@ use std::{
 };
 
 use crossterm::{
-    event::{self, Event, KeyEvent, KeyCode},
+    event::{self, Event, KeyEvent, KeyCode, KeyModifiers},
 };
 
 pub enum InputEvent {
@@ -27,7 +27,11 @@ impl<'a> InputListener<'a> {
     pub fn quit(&self) -> bool {
         // Receive event from input thread
         match self.rx.recv().expect("rx recv expect") {
-            InputEvent::Input(_) => { },
+            InputEvent::Input(input) => match input {
+                KeyEvent{ code: KeyCode::Char('q'), modifiers: KeyModifiers::NONE, ..} => return true,
+                _ => return false,
+            }
+            ,
             InputEvent::Tick => { },
             InputEvent::Quit => return true,
         }

@@ -1,13 +1,13 @@
 use tui::{
     Frame,
-    backend::{Backend},
-    layout::{Rect},
+    backend::Backend,
+    layout::Rect,
     widgets::{Block, Borders},
     style::{Style, Color}
 };
 
 use crate::{
-    ui::{Draw}
+    ui::Draw
 };
 
 pub struct Cell {

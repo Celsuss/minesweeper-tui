@@ -46,13 +46,13 @@ impl App {
         // Game loop
         loop {
             screen.draw_ui(&mut terminal, self, self.board_width, self.board_height).expect("draw ui expect");
-            thread::sleep(Duration::from_millis(5000));
+            //thread::sleep(Duration::from_millis(5000));
 
             if input_listener.quit(){
                 break;
             }
         }
-    
+
         execute!(
             terminal.backend_mut(),
             LeaveAlternateScreen,
