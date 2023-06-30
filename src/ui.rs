@@ -9,7 +9,10 @@ use tui::{
 };
 use std::{io};
 
-use crate::app::App;
+use crate::{
+    app::App,
+    board::Board,
+};
 
 pub struct Screen{
 
@@ -25,7 +28,7 @@ impl Screen{
         }
     }
 
-    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board_width: i16, board_height: i16) -> io::Result<()> {
+    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board: &Board) -> io::Result<()> {
         terminal.draw(|f| {
             let size = f.size();
             let block = Block::default()
@@ -43,7 +46,7 @@ impl Screen{
                 .split(f.size());
 
             self.draw_top_menu(f, app, chunks[0]);
-            self.draw_board(f, app, chunks[1], board_width, board_height);
+            self.draw_board(f, app, chunks[1], board);
         })?;
 
         Ok(())
@@ -98,12 +101,12 @@ impl Screen{
         frame.render_widget(paragraph, chunks[0]);
     }
 
-    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect, board_width: i16, board_height: i16) {
+    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect, board: &Board) {
         // Create the vertical constraints
         let mut constraints = vec![];
         let mut i: i16 = 0;
-        while i < board_height {
-            constraints.push(Constraint::Percentage(100 / (board_height as u16)));
+        while i < board.get_board_height() {
+            constraints.push(Constraint::Percentage(100 / (board.get_board_height() as u16)));
             i += 1;
         }
 
@@ -114,11 +117,11 @@ impl Screen{
 
         let mut cell_index: usize = 0;
         for chunk in chunks{
-            self.draw_horizontal_cells(frame, app, chunk, board_width, &mut cell_index);
+            self.draw_horizontal_cells(frame, board, chunk, board.get_board_width(), &mut cell_index);
         }
     }
 
-    fn draw_horizontal_cells<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect, board_width: i16, cell_index: &mut usize){
+    fn draw_horizontal_cells<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, root_chunk: Rect, board_width: i16, cell_index: &mut usize){
         // Create the constraints
         let mut constraints = vec![];
         let mut i: i16 = 0;
@@ -133,7 +136,7 @@ impl Screen{
             .split(root_chunk);
 
         for chunk in chunks {
-            app.get_cells()[*cell_index].draw(frame, chunk);
+            board.get_cells()[*cell_index].draw(frame, chunk);
             *cell_index += 1;
         }
     }

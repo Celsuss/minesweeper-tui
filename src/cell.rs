@@ -16,14 +16,20 @@ pub struct Cell {
     value: i32,
     is_bomb: bool,
     has_flag: bool,
+    is_selected: bool,
 }
 
 impl<B: Backend> Draw<B> for Cell {
     fn draw(&self, frame: &mut Frame<B>, chunk: Rect) {
+        let mut color = Color::Gray;
+        if self.is_selected {
+            color = Color::Green;
+        }
+
         // code to actually draw a select box
         let block = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(Color::Gray));
+            .style(Style::default().fg(color));
         frame.render_widget(block, chunk);
         // TODO: Add assertions so block is not of no size.
     }
@@ -34,9 +40,10 @@ impl Cell {
         Self {
             width: (width),
             height: (height),
-            value: (0),
-            is_bomb: (false),
-            has_flag: (false)
+            value: 0,
+            is_bomb: false,
+            has_flag: false,
+            is_selected: false
         }
     }
 
@@ -50,5 +57,9 @@ impl Cell {
 
     pub fn get_has_flag(&self) -> bool{
         self.has_flag
+    }
+
+    pub fn set_is_selected(&mut self, is_selected: bool){
+        self.is_selected = is_selected;
     }
 }

@@ -1,6 +1,4 @@
-use crossterm::{
-    terminal::{disable_raw_mode, enable_raw_mode},
-};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use std::{
     io,
     sync::mpsc::{self, Receiver, Sender},
@@ -11,6 +9,7 @@ mod app;
 mod ui;
 mod cell;
 mod input_listener;
+mod board;
 
 fn main() -> Result<(), io::Error> {
     enable_raw_mode().expect("Enable raw mode expect");

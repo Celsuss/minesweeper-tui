@@ -10,24 +10,21 @@ use crossterm::{
 };
 
 use crate::{
-    ui::{Screen},
-    cell::{Cell},
+    ui::Screen,
+    cell::Cell,
     input_listener::{InputEvent, InputListener},
+    board::Board,
 };
 
 pub struct App{
-    cells: Vec<Cell>,
-    board_width: i16,
-    board_height: i16,
+    board: Board,
     score: i16,
 }
 
 impl App {
     pub fn new() -> Self {
         Self {
-            cells: Vec::new(),
-            board_width: 9,
-            board_height: 9,
+            board: Board::new(10, 10),
             score: 0,
         }
     }
@@ -43,11 +40,14 @@ impl App {
         let input_listener: InputListener = InputListener::new(rx);
 
         // Init game grid cells
-        self.init_cells(10, 10);
+        // self.init_cells(10, 10);
+        self.board.initiate_board(10, 10);
 
         // Game loop
         loop {
-            screen.draw_ui(&mut terminal, self, self.board_width, self.board_height).expect("draw ui expect");
+            screen.draw_ui(&mut terminal,
+                           self,
+                           &self.board).expect("draw ui expect");
 
             if input_listener.quit(){
                 break;
@@ -63,20 +63,7 @@ impl App {
         Ok(())
     }
 
-    pub fn get_cells(&self) -> &Vec<Cell> {
-        &self.cells
-    }
-
     pub fn get_score(&self) -> i16 {
         self.score
-    }
-
-    fn init_cells(&mut self, rows: i16, columns: i16){
-        // Create cells
-        for _i in 0..columns {
-            for _j in 0..rows {
-                self.cells.push(Cell::new(16, 16));
-            }
-        }
     }
 }
