@@ -7,6 +7,7 @@ use crossterm::{
     event::{self, Event, KeyEvent, KeyCode, KeyModifiers},
 };
 
+#[derive(PartialEq, Eq)]
 pub enum InputEvent {
     Input(KeyEvent),
     Tick,
@@ -14,7 +15,7 @@ pub enum InputEvent {
 }
 
 pub struct InputListener<'a> {
-    rx:  &'a mpsc::Receiver<InputEvent>
+    rx:  &'a mpsc::Receiver<InputEvent>,
 }
 
 impl<'a> InputListener<'a> {
@@ -24,27 +25,20 @@ impl<'a> InputListener<'a> {
         }
     }
 
-    pub fn quit(&self) -> bool {
-        // Receive event from input thread
+    pub fn handle_input(&self) -> InputEvent {
         match self.rx.recv().expect("rx recv expect") {
             InputEvent::Input(input) => match input {
-                KeyEvent{ code: KeyCode::Char('q'), modifiers: KeyModifiers::NONE, ..} => return true,
-                _ => return false,
+                // KeyEvent{ code: KeyCode::Char('x'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Quit,
+                _ => InputEvent::Input(input),
             }
             ,
-            InputEvent::Tick => { },
-            InputEvent::Quit => return true,
+            InputEvent::Tick => return InputEvent::Tick,
+            InputEvent::Quit => return InputEvent::Quit,
         }
-
-        false
-    }
-
-    pub fn handle_input(&self) {
-        todo!();
     }
 }
 
-pub fn listen_for_input(tx: &mpsc::Sender<InputEvent>){
+pub fn listen_for_key_input(tx: &mpsc::Sender<InputEvent>){
     let mut last_tick: Instant = Instant::now();
     let tick_rate: Duration = Duration::from_millis(200);
 
@@ -55,6 +49,13 @@ pub fn listen_for_input(tx: &mpsc::Sender<InputEvent>){
 
         if event::poll(timeout).expect("poll expect") {
             if let Event::Key(key) = event::read().expect("event read expect") {
+                match key {
+                    KeyEvent{ code: KeyCode::Char('q'), modifiers: KeyModifiers::NONE, ..} => {
+                        tx.send(InputEvent::Quit).expect("tx send expect");
+                    },
+                    _ => tx.send(InputEvent::Input(key)).expect("tx send expect"),
+                }
+
                 tx.send(InputEvent::Input(key)).expect("tx send expect");
             }
         }

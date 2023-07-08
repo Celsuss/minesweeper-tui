@@ -11,7 +11,6 @@ use crossterm::{
 
 use crate::{
     ui::Screen,
-    cell::Cell,
     input_listener::{InputEvent, InputListener},
     board::Board,
 };
@@ -40,7 +39,6 @@ impl App {
         let input_listener: InputListener = InputListener::new(rx);
 
         // Init game grid cells
-        // self.init_cells(10, 10);
         self.board.initiate_board(10, 10);
 
         // Game loop
@@ -49,7 +47,7 @@ impl App {
                            self,
                            &self.board).expect("draw ui expect");
 
-            if input_listener.quit(){
+            if input_listener.handle_input() == InputEvent::Quit {
                 break;
             }
         }

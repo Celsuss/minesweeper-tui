@@ -29,7 +29,8 @@ impl<B: Backend> Draw<B> for Cell {
         // code to actually draw a select box
         let block = Block::default()
             .borders(Borders::ALL)
-            .style(Style::default().fg(color));
+            .border_style(Style::default().fg(color));
+            //.style(Style::default().bg(Color::Blue));
         frame.render_widget(block, chunk);
         // TODO: Add assertions so block is not of no size.
     }

@@ -103,36 +103,45 @@ impl Screen{
 
     fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect, board: &Board) {
         // Create the vertical constraints
+        self.draw_cells(frame, board, root_chunk);
+    }
+
+    fn draw_cells<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, root_chunk: Rect){
         let mut constraints = vec![];
         let mut i: i16 = 0;
         while i < board.get_board_height() {
-            constraints.push(Constraint::Percentage(100 / (board.get_board_height() as u16)));
-            i += 1;
-        }
-
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints(constraints.as_ref())
-            .split(root_chunk);
-
-        let mut cell_index: usize = 0;
-        for chunk in chunks{
-            self.draw_horizontal_cells(frame, board, chunk, board.get_board_width(), &mut cell_index);
-        }
-    }
-
-    fn draw_horizontal_cells<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, root_chunk: Rect, board_width: i16, cell_index: &mut usize){
-        // Create the constraints
-        let mut constraints = vec![];
-        let mut i: i16 = 0;
-        while i < board_width {
-            constraints.push(Constraint::Percentage(100 / (board_width as u16)));
+            // constraints.push(Constraint::Percentage(100 / (board.get_board_height() as u16)));
+            constraints.push(Constraint::Percentage(10));
             i += 1;
         }
 
         let chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(constraints.as_ref())
+            .margin(0)
+            .split(root_chunk);
+
+        let mut cell_index: usize = 0;
+        for chunk in chunks{
+            self.draw_horizontal_cells(frame, board, chunk, &mut cell_index);
+        }
+    }
+
+    fn draw_horizontal_cells<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, root_chunk: Rect, cell_index: &mut usize){
+        let board_width = board.get_board_width();
+        // Create the constraints
+        let mut constraints = vec![];
+        let mut i: i16 = 0;
+        while i < board_width {
+            // constraints.push(Constraint::Percentage(100 / (board_width as u16)));
+            constraints.push(Constraint::Percentage(10));
+            i += 1;
+        }
+
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(constraints.as_ref())
+            .margin(0)
             .split(root_chunk);
 
         for chunk in chunks {
@@ -141,3 +150,4 @@ impl Screen{
         }
     }
 }
+

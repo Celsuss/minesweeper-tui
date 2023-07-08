@@ -15,7 +15,7 @@ fn main() -> Result<(), io::Error> {
     enable_raw_mode().expect("Enable raw mode expect");
 
     let (tx, rx): (Sender<input_listener::InputEvent>, Receiver<input_listener::InputEvent>) = mpsc::channel();
-    thread::spawn(move || input_listener::listen_for_input(&tx));
+    thread::spawn(move || input_listener::listen_for_key_input(&tx));
 
     let mut app: app::App = app::App::new();
     app.run(&rx).expect("Run expected");
