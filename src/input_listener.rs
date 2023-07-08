@@ -8,8 +8,22 @@ use crossterm::{
 };
 
 #[derive(PartialEq, Eq)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+#[derive(PartialEq, Eq)]
+pub enum Action {
+    Enter,
+}
+
+#[derive(PartialEq, Eq)]
 pub enum InputEvent {
     Input(KeyEvent),
+    Navigation(Direction),
     Tick,
     Quit
 }
@@ -28,12 +42,14 @@ impl<'a> InputListener<'a> {
     pub fn handle_input(&self) -> InputEvent {
         match self.rx.recv().expect("rx recv expect") {
             InputEvent::Input(input) => match input {
-                // KeyEvent{ code: KeyCode::Char('x'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Quit,
+                KeyEvent{ code: KeyCode::Char('d'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Right),
+                KeyEvent{ code: KeyCode::Char('a'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Left),
+                KeyEvent{ code: KeyCode::Char('w'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Up),
+                KeyEvent{ code: KeyCode::Char('s'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Down),
                 _ => InputEvent::Input(input),
-            }
-            ,
-            InputEvent::Tick => return InputEvent::Tick,
+            },
             InputEvent::Quit => return InputEvent::Quit,
+            _ => return InputEvent::Tick,
         }
     }
 }

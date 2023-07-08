@@ -47,9 +47,15 @@ impl App {
                            self,
                            &self.board).expect("draw ui expect");
 
-            if input_listener.handle_input() == InputEvent::Quit {
-                break;
+            match input_listener.handle_input() {
+                InputEvent::Navigation(direction) => self.board.change_active_cell(InputEvent::Navigation(direction)),
+                InputEvent::Quit => break,
+                _  => { },
             }
+
+            // if input_listener.handle_input() == InputEvent::Quit {
+            //     break;
+            // }
         }
 
         execute!(

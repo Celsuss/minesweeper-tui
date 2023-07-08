@@ -1,5 +1,11 @@
 
-use crate::cell::Cell;
+use crate::{
+    cell::Cell,
+    input_listener::{
+        InputEvent,
+        Direction,
+    },
+};
 
 pub struct Board{
     cells: Vec<Cell>,
@@ -37,5 +43,15 @@ impl Board {
 
     pub fn get_cells(&self) -> &Vec<Cell> {
         &self.cells
+    }
+
+    pub fn change_active_cell(&mut self, input_event: InputEvent) {
+        match input_event {
+            InputEvent::Navigation(Direction::Up)  => { },
+            InputEvent::Navigation(Direction::Down)  => { },
+            InputEvent::Navigation(Direction::Left)  => { },
+            InputEvent::Navigation(Direction::Right)  => { },
+            _ => { },
+        }
     }
 }
