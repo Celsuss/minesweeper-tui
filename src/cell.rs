@@ -2,8 +2,10 @@ use tui::{
     Frame,
     backend::Backend,
     layout::Rect,
-    widgets::{Block, Borders},
-    style::{Style, Color}
+    widgets::{Block, Borders, Paragraph, Wrap},
+    layout::Alignment,
+    style::{Style, Color},
+    text::Span
 };
 
 use crate::{
@@ -22,18 +24,44 @@ pub struct Cell {
 
 impl<B: Backend> Draw<B> for Cell {
     fn draw(&self, frame: &mut Frame<B>, chunk: Rect) {
-        let mut color = Color::Gray;
-        if self.is_selected {
-            color = Color::Green;
+        let border_color = if self.is_selected {
+            Color::Green
         }
+        else {
+            Color::Gray
+        };
+
+        let background_color = if self.is_bomb {
+            Color::Red
+        }
+        else {
+            Color::Black
+        };
+
 
         // code to actually draw a select box
         let block = Block::default()
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(color));
-            //.style(Style::default().bg(Color::Blue));
-        frame.render_widget(block, chunk);
-        // TODO: Add assertions so block is not of no size.
+            .border_style(Style::default().fg(border_color))
+            .style(Style::default().bg(background_color));
+
+        if self.is_hidden == false {
+            let span = Span::styled(
+                self.value.to_string(),
+                Style::default()
+                    .fg(Color::Green)
+            );
+
+            let paragraph = Paragraph::new(span)
+                .block(block)
+                .alignment(Alignment::Center)
+                .wrap(Wrap { trim: true });
+
+            frame.render_widget(paragraph, chunk);
+        }
+        else {
+            frame.render_widget(block, chunk);
+        }
     }
 }
 
@@ -54,6 +82,10 @@ impl Cell {
         self.is_bomb
     }
 
+    pub fn set_is_bomb(&mut self, is_bomb: bool) {
+        self.is_bomb = is_bomb;
+    }
+
     pub fn get_value(&self) -> i32{
         self.value
     }
@@ -62,11 +94,20 @@ impl Cell {
         self.has_flag
     }
 
+    pub fn set_has_flag(&mut self, has_flag: bool) {
+        if self.is_hidden == false {
+            return
+        }
+
+        self.has_flag = has_flag;
+    }
+
     pub fn set_is_selected(&mut self, is_selected: bool){
         self.is_selected = is_selected;
     }
 
     pub fn select(&mut self) {
-        
+        self.is_hidden = false;
+        self.has_flag = false;
     }
 }

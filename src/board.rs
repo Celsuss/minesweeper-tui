@@ -1,4 +1,6 @@
 
+use rand::Rng;
+
 use crate::{
     cell::Cell,
     input_listener::{
@@ -25,13 +27,27 @@ impl Board {
     }
 
     pub fn initiate_board(&mut self, width: i16, height: i16){
-        // Create cells
-        for _i in 0..width {
-            for _j in 0..height {
+        if width == 0 || height == 0{
+            return;
+        }
+
+        self.create_cells((width * height) as usize);
+        self.add_bombs(5);
+    }
+
+    fn create_cells(&mut self, cell_count: usize){
+        for _i in 0..cell_count {
                 self.cells.push(Cell::new(16, 16));
-            }
         }
         self.cells[self.selected_cell_index].set_is_selected(true);
+    }
+
+    fn add_bombs(&mut self, bomb_count: i16){
+        let mut rng = rand::thread_rng();
+        for _i in 0..bomb_count {
+            let index = rng.gen_range(0..self.cells.len());
+            self.cells[index].set_is_bomb(true);
+        }
     }
 
     pub fn get_board_width(&self) -> i16{
