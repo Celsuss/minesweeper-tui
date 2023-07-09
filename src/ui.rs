@@ -116,7 +116,7 @@ impl Screen{
         }
 
         let chunks = Layout::default()
-            .direction(Direction::Horizontal)
+            .direction(Direction::Vertical)
             .constraints(constraints.as_ref())
             .margin(0)
             .split(root_chunk);
@@ -139,7 +139,7 @@ impl Screen{
         }
 
         let chunks = Layout::default()
-            .direction(Direction::Vertical)
+            .direction(Direction::Horizontal)
             .constraints(constraints.as_ref())
             .margin(0)
             .split(root_chunk);

@@ -24,6 +24,7 @@ pub enum Action {
 pub enum InputEvent {
     Input(KeyEvent),
     Navigation(Direction),
+    Select,
     Tick,
     Quit
 }
@@ -46,6 +47,7 @@ impl<'a> InputListener<'a> {
                 KeyEvent{ code: KeyCode::Char('a'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Left),
                 KeyEvent{ code: KeyCode::Char('w'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Up),
                 KeyEvent{ code: KeyCode::Char('s'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Down),
+                KeyEvent{ code: KeyCode::Enter, modifiers: KeyModifiers::NONE, ..} => return InputEvent::Select,
                 _ => InputEvent::Input(input),
             },
             InputEvent::Quit => return InputEvent::Quit,
@@ -71,8 +73,6 @@ pub fn listen_for_key_input(tx: &mpsc::Sender<InputEvent>){
                     },
                     _ => tx.send(InputEvent::Input(key)).expect("tx send expect"),
                 }
-
-                tx.send(InputEvent::Input(key)).expect("tx send expect");
             }
         }
 

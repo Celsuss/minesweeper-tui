@@ -45,10 +45,11 @@ impl App {
         loop {
             screen.draw_ui(&mut terminal,
                            self,
-                           &self.board).expect("draw ui expect");
+                           &self.board).expect("Failed to draw ui");
 
             match input_listener.handle_input() {
                 InputEvent::Navigation(direction) => self.board.change_active_cell(InputEvent::Navigation(direction)),
+                InputEvent::Select => self.board.select_active_cell(),
                 InputEvent::Quit => break,
                 _  => { },
             }

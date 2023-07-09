@@ -14,6 +14,7 @@ pub struct Cell {
     width: i16,
     height: i16,
     value: i32,
+    is_hidden: bool,
     is_bomb: bool,
     has_flag: bool,
     is_selected: bool,
@@ -42,6 +43,7 @@ impl Cell {
             width: (width),
             height: (height),
             value: 0,
+            is_hidden: true,
             is_bomb: false,
             has_flag: false,
             is_selected: false
@@ -62,5 +64,9 @@ impl Cell {
 
     pub fn set_is_selected(&mut self, is_selected: bool){
         self.is_selected = is_selected;
+    }
+
+    pub fn select(&mut self) {
+        
     }
 }
