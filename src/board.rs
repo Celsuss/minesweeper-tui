@@ -1,4 +1,6 @@
 
+use std::ptr::null;
+
 use rand::Rng;
 
 use crate::{
@@ -66,19 +68,22 @@ impl Board {
                 for k in 0..3 {
                     let neighbor_pos: (i16, i16) = (pos.0 + (k-1), pos.1 + (j-1));
 
-
-                    if neighbor_pos.0 >= 0 && neighbor_pos.0 < self.board_width
-                        && neighbor_pos.1 >= 0 && neighbor_pos.1 < self.board_height {
-                            let neighbor_index: usize = self.get_index_from_pos(neighbor_pos.0, neighbor_pos.1);
-                            self.cells[neighbor_index].increment_value();
-                        }
+                    let neighbor_index = self.get_index_from_pos(neighbor_pos.0, neighbor_pos.1);
+                    if neighbor_index.is_some() == true {
+                        self.cells[neighbor_index.unwrap()].increment_value();
+                    }
                 }
             }
         }
     }
 
-    fn get_index_from_pos(&self, x: i16, y: i16) -> usize {
-        (x + (y * self.board_width as i16)) as usize
+    fn get_index_from_pos(&self, x: i16, y: i16) -> Option<usize> {
+        if x < 0 || x >= self.board_width ||
+            y < 0 || y >= self.board_height {
+                return None;
+            }
+
+        Some((x + (y * self.board_width as i16)) as usize)
     }
 
     fn get_pos_from_index(&self, index: i16) -> (i16, i16) {
