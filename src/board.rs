@@ -27,12 +27,13 @@ impl Board {
     }
 
     pub fn initiate_board(&mut self, width: i16, height: i16){
-        if width == 0 || height == 0{
+        if width == 0 || height == 0 {
             return;
         }
 
         self.create_cells((width * height) as usize);
-        self.add_bombs(5);
+        self.add_bombs(10);
+        self.update_cell_values();
     }
 
     fn create_cells(&mut self, cell_count: usize){
@@ -48,6 +49,42 @@ impl Board {
             let index = rng.gen_range(0..self.cells.len());
             self.cells[index].set_is_bomb(true);
         }
+    }
+
+    fn update_cell_values(&mut self) {
+        for i in 0..self.cells.len() {
+            let cell: &Cell = &self.cells[i];
+
+            // Continue if this is not a bomb, if it is increase score of all adjacant cells
+            if !cell.is_bomb() {
+                continue;
+            }
+
+            // Convert index to x, y position
+            let pos: (i16, i16) = self.get_pos_from_index(i as i16);
+            for j in 0..3 {
+                for k in 0..3 {
+                    let neighbor_pos: (i16, i16) = (pos.0 + (k-1), pos.1 + (j-1));
+
+
+                    if neighbor_pos.0 >= 0 && neighbor_pos.0 < self.board_width
+                        && neighbor_pos.1 >= 0 && neighbor_pos.1 < self.board_height {
+                            let neighbor_index: usize = self.get_index_from_pos(neighbor_pos.0, neighbor_pos.1);
+                            self.cells[neighbor_index].increment_value();
+                        }
+                }
+            }
+        }
+    }
+
+    fn get_index_from_pos(&self, x: i16, y: i16) -> usize {
+        (x + (y * self.board_width as i16)) as usize
+    }
+
+    fn get_pos_from_index(&self, index: i16) -> (i16, i16) {
+        let y = index / self.board_width;
+        let x = index - (y * self.board_width);
+        (x, y)
     }
 
     pub fn get_board_width(&self) -> i16{

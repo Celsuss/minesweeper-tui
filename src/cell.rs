@@ -110,4 +110,8 @@ impl Cell {
         self.is_hidden = false;
         self.has_flag = false;
     }
+
+    pub fn increment_value(&mut self) {
+        self.value += 1;
+    }
 }
