@@ -50,6 +50,7 @@ impl App {
             match input_listener.handle_input() {
                 InputEvent::Navigation(direction) => self.board.change_active_cell(InputEvent::Navigation(direction)),
                 InputEvent::Select => self.board.select_active_cell(),
+                InputEvent::Flag => self.board.toggle_active_cell_flag(),
                 InputEvent::Quit => break,
                 _  => { },
             }

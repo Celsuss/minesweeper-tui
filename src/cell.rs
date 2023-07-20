@@ -18,7 +18,7 @@ pub struct Cell {
     value: i32,
     is_hidden: bool,
     is_bomb: bool,
-    has_flag: bool,
+    is_flagged: bool,
     is_selected: bool,
 }
 
@@ -45,9 +45,9 @@ impl<B: Backend> Draw<B> for Cell {
             .border_style(Style::default().fg(border_color))
             .style(Style::default().bg(background_color));
 
-        if self.is_hidden == false {
+        if self.is_hidden == false || self.is_flagged {
             let span = Span::styled(
-                self.value.to_string(),
+                self.get_cell_text(),
                 Style::default()
                     .fg(Color::Green)
             );
@@ -73,7 +73,7 @@ impl Cell {
             value: 0,
             is_hidden: true,
             is_bomb: false,
-            has_flag: false,
+            is_flagged: false,
             is_selected: false
         }
     }
@@ -90,16 +90,16 @@ impl Cell {
         self.value
     }
 
-    pub fn get_has_flag(&self) -> bool{
-        self.has_flag
-    }
+    // pub fn get_is_flagged(&self) -> bool{
+    //     self.is_flagged
+    // }
 
-    pub fn set_has_flag(&mut self, has_flag: bool) {
+    pub fn toggle_is_flagged(&mut self) {
         if self.is_hidden == false {
             return
         }
 
-        self.has_flag = has_flag;
+        self.is_flagged = !self.is_flagged;
     }
 
     pub fn set_is_selected(&mut self, is_selected: bool){
@@ -108,10 +108,21 @@ impl Cell {
 
     pub fn select(&mut self) {
         self.is_hidden = false;
-        self.has_flag = false;
+        self.is_flagged = false;
     }
 
     pub fn increment_value(&mut self) {
         self.value += 1;
+    }
+
+    fn get_cell_text(&self) -> String {
+        if self.is_flagged == true {
+            return "F".to_string();
+        }
+        else if self.is_bomb == true {
+            return "B".to_string();
+        }
+
+        self.value.to_string()
     }
 }

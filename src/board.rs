@@ -122,6 +122,14 @@ impl Board {
         }
     }
 
+    // pub fn get_active_cell(&self) -> &Cell {
+    //     &self.cells[self.selected_cell_index]
+    // }
+
+    pub fn toggle_active_cell_flag(&mut self) {
+        self.cells[self.selected_cell_index].toggle_is_flagged();
+    }
+
     fn set_active_cell(&mut self, index: i16){
         if index < 0 || index >= self.cells.len() as i16 {
             return;
