@@ -42,7 +42,12 @@ impl<'a> InputListener<'a> {
     }
 
     pub fn handle_input(&self) -> InputEvent {
-        match self.rx.recv().expect("rx recv expect") {
+        let recv = self.rx.recv_timeout(Duration::from_millis(300));
+        if recv.is_err(){
+            return InputEvent::Tick;
+        }
+
+        match recv.unwrap() {
             InputEvent::Input(input) => match input {
                 KeyEvent{ code: KeyCode::Char('d'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Right),
                 KeyEvent{ code: KeyCode::Char('a'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Left),
