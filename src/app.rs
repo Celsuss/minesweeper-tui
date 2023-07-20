@@ -1,4 +1,9 @@
-use std::{io, thread, time::Duration, sync::mpsc::Receiver};
+use std::{
+    io,
+    thread,
+    time::{Duration, Instant},
+    sync::mpsc::Receiver
+};
 use tui::{
     backend::{CrosstermBackend},
     Terminal
@@ -18,6 +23,7 @@ use crate::{
 pub struct App{
     board: Board,
     score: i16,
+    start_time: Instant,
 }
 
 impl App {
@@ -25,6 +31,7 @@ impl App {
         Self {
             board: Board::new(10, 10),
             score: 0,
+            start_time: Instant::now()
         }
     }
 
@@ -39,13 +46,15 @@ impl App {
         let input_listener: InputListener = InputListener::new(rx);
 
         // Init game grid cells
-        self.board.initiate_board(10, 10);
+        self.initiate_game();
 
         // Game loop
         loop {
+            let game_duration: Duration = Instant::now() - self.start_time;
             screen.draw_ui(&mut terminal,
                            self,
-                           &self.board).expect("Failed to draw ui");
+                           &self.board,
+                           game_duration).expect("Failed to draw ui");
 
             match input_listener.handle_input() {
                 InputEvent::Navigation(direction) => self.board.change_active_cell(InputEvent::Navigation(direction)),
@@ -54,10 +63,6 @@ impl App {
                 InputEvent::Quit => break,
                 _  => { },
             }
-
-            // if input_listener.handle_input() == InputEvent::Quit {
-            //     break;
-            // }
         }
 
         execute!(
@@ -67,6 +72,11 @@ impl App {
         )?;
         terminal.show_cursor()?;
         Ok(())
+    }
+
+    fn initiate_game(&mut self){
+        self.board.initiate_board(10, 10);
+        self.start_time = Instant::now();
     }
 
     pub fn get_score(&self) -> i16 {

@@ -7,7 +7,10 @@ use tui::{
     Frame,
     Terminal,
 };
-use std::{io};
+use std::{
+    io,
+    time::Duration,
+};
 
 use crate::{
     app::App,
@@ -28,7 +31,7 @@ impl Screen{
         }
     }
 
-    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board: &Board) -> io::Result<()> {
+    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board: &Board, time: Duration) -> io::Result<()> {
         terminal.draw(|f| {
             let size = f.size();
             let block = Block::default()
@@ -45,14 +48,14 @@ impl Screen{
                 .margin(1)
                 .split(f.size());
 
-            self.draw_top_menu(f, app, chunks[0]);
+            self.draw_top_menu(f, app, time, chunks[0]);
             self.draw_board(f, app, chunks[1], board);
         })?;
 
         Ok(())
     }
 
-    fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect){
+    fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, time: Duration, root_chunk: Rect){
         // TODO: Draw score, timer and maybe more
 
         let score = app.get_score();
@@ -72,14 +75,14 @@ impl Screen{
 
         let spans = Spans::from(vec![
             Span::styled(
-                "Score: {score}",
+                format!("Score: {}", score),
                 Style::default()
                     .fg(Color::Yellow)
                     .add_modifier(Modifier::BOLD)
             ),
             Span::raw(" "),
             Span::styled(
-                "Time: {time}",
+                format!("Time: {}", time.as_secs().to_string()),
                 Style::default()
                     .fg(Color::Yellow)
                     .add_modifier(Modifier::BOLD)
