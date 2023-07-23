@@ -24,32 +24,19 @@ pub struct Cell {
 
 impl<B: Backend> Draw<B> for Cell {
     fn draw(&self, frame: &mut Frame<B>, chunk: Rect) {
-        let border_color = if self.is_selected {
-            Color::Green
-        }
-        else {
-            Color::Gray
-        };
-
-        let background_color = if self.is_bomb {
-            Color::Red
-        }
-        else {
-            Color::Black
-        };
-
+        let border_color = self.get_border_color();
 
         // code to actually draw a select box
         let block = Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(border_color))
-            .style(Style::default().bg(background_color));
+            .style(Style::default().bg(Color::Black));
 
         if self.is_hidden == false || self.is_flagged {
             let span = Span::styled(
                 self.get_cell_text(),
                 Style::default()
-                    .fg(Color::Green)
+                    .fg(self.get_text_color())
             );
 
             let paragraph = Paragraph::new(span)
@@ -116,5 +103,38 @@ impl Cell {
         }
 
         self.value.to_string()
+    }
+
+    fn get_border_color(&self) -> Color {
+        // TODO: Remove this if-statement, only for debugging purpose
+        if self.is_bomb {
+            return Color::Red;
+        }
+        else if self.is_selected {
+            return Color::Green;
+        }
+        else if self.is_hidden {
+            return Color::Gray;
+        }
+
+        self.get_text_color()
+    }
+
+    fn get_text_color(&self) -> Color {
+        if self.is_flagged == true {
+            return Color::Red;
+        }
+
+        match self.value {
+            1 => return Color::Blue,
+            2 => return Color::Green,
+            3 => return Color::LightRed,
+            4 => return Color::DarkGray,
+            5 => return Color::Red,
+            6 => return Color::Cyan,
+            7 => return Color::Black,
+            8 => return Color::Gray,
+            _ => return Color::White,
+        }
     }
 }
