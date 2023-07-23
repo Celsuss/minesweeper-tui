@@ -20,7 +20,7 @@ use crate::{
 };
 
 pub struct Screen{
-
+    cell_size: u16,
 }
 
 pub trait Draw<B: Backend>{
@@ -30,6 +30,7 @@ pub trait Draw<B: Backend>{
 impl Screen{
     pub fn new() -> Self{
         Self {
+            cell_size: 3
         }
     }
 
@@ -156,9 +157,37 @@ impl Screen{
         // frame.render_widget(paragraph, chunk);
     }
 
-    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect, board: &Board) {
+    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, chunk: Rect, board: &Board) {
         // Create the vertical constraints
-        self.draw_cells(frame, board, root_chunk);
+        let center_chunk = self.get_cell_center_chunk(chunk, board);
+        self.draw_cells(frame, board, center_chunk);
+    }
+
+    fn get_cell_center_chunk(&self, chunk: Rect, board: &Board) -> Rect {
+        let cells_width = board.get_board_width() as u16 * self.cell_size;
+        let cells_height = board.get_board_height() as u16 * self.cell_size;
+
+        let blank_width = (chunk.width - cells_width) / 2;
+        let blank_height = (chunk.height - cells_height) / 2;
+
+
+        let vertical_chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Max(blank_height),
+                Constraint::Length(cells_height),
+                Constraint::Max(blank_height)])
+            .margin(0)
+            .split(chunk);
+
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([
+                Constraint::Max(blank_width),
+                Constraint::Length(cells_width),
+                Constraint::Max(blank_width)])
+            .margin(0)
+            .split(vertical_chunks[1])[1]
     }
 
     fn draw_cells<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, root_chunk: Rect){
@@ -166,7 +195,8 @@ impl Screen{
         let mut i: i16 = 0;
         while i < board.get_board_height() {
             // constraints.push(Constraint::Percentage(100 / (board.get_board_height() as u16)));
-            constraints.push(Constraint::Percentage(10));
+            //constraints.push(Constraint::Percentage(10));
+            constraints.push(Constraint::Length(self.cell_size));
             i += 1;
         }
 
@@ -189,7 +219,8 @@ impl Screen{
         let mut i: i16 = 0;
         while i < board_width {
             // constraints.push(Constraint::Percentage(100 / (board_width as u16)));
-            constraints.push(Constraint::Percentage(10));
+            // constraints.push(Constraint::Percentage(10));
+            constraints.push(Constraint::Length(self.cell_size));
             i += 1;
         }
 
