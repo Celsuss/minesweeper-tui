@@ -45,9 +45,11 @@ impl Screen{
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints(
-                    [Constraint::Percentage(10),
-                     Constraint::Percentage(80),
-                     Constraint::Percentage(10)].as_ref())
+                    [
+                        Constraint::Length(3),
+                        Constraint::Min(5),
+                        Constraint::Length(5),
+                    ].as_ref())
                 .margin(1)
                 .split(f.size());
 
@@ -61,6 +63,7 @@ impl Screen{
 
     fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, time: Duration, root_chunk: Rect){
         let score = app.get_score();
+        let text_style = Style::default().fg(Color::Cyan);
 
         // Create the constraints
         let mut constraints = vec![];
@@ -78,16 +81,12 @@ impl Screen{
         let spans = Spans::from(vec![
             Span::styled(
                 format!("Score: {}", score),
-                Style::default()
-                    .fg(Color::Yellow)
-                    .add_modifier(Modifier::BOLD)
+                text_style
             ),
             Span::raw(" "),
             Span::styled(
                 format!("Time: {}", time.as_secs().to_string()),
-                Style::default()
-                    .fg(Color::Yellow)
-                    .add_modifier(Modifier::BOLD)
+                text_style
             ),
         ]);
 
@@ -116,7 +115,7 @@ impl Screen{
         let block = Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::Gray));
-        let text_style: Style = Style::default().fg(Color::Cyan);
+        let text_style: Style = self.get_text_style();
         let mut text: Text = Text::default();
 
         for (key, description) in key_bindings.into_iter() {
@@ -128,6 +127,7 @@ impl Screen{
 
         let paragraph = Paragraph::new(text)
             .block(block)
+            
             .alignment(Alignment::Center);
         frame.render_widget(paragraph, chunk);
 
@@ -203,6 +203,10 @@ impl Screen{
             board.get_cells()[*cell_index].draw(frame, chunk);
             *cell_index += 1;
         }
+    }
+
+    fn get_text_style(&self) -> Style {
+        Style::default().fg(Color::Cyan)
     }
 }
 
