@@ -3,13 +3,15 @@ use tui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     widgets::{Block, Borders, Paragraph, Wrap},
     style::{Style, Color, Modifier},
-    text::{Spans, Span},
+    text::{Spans, Span, Text},
     Frame,
     Terminal,
 };
 use std::{
     io,
     time::Duration,
+    collections::{HashMap, BTreeMap},
+
 };
 
 use crate::{
@@ -44,20 +46,20 @@ impl Screen{
                 .direction(Direction::Vertical)
                 .constraints(
                     [Constraint::Percentage(10),
-                     Constraint::Percentage(90)].as_ref())
+                     Constraint::Percentage(80),
+                     Constraint::Percentage(10)].as_ref())
                 .margin(1)
                 .split(f.size());
 
             self.draw_top_menu(f, app, time, chunks[0]);
             self.draw_board(f, app, chunks[1], board);
+            self.draw_bottom_help_bar(f, chunks[2]);
         })?;
 
         Ok(())
     }
 
     fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, time: Duration, root_chunk: Rect){
-        // TODO: Draw score, timer and maybe more
-
         let score = app.get_score();
 
         // Create the constraints
@@ -102,6 +104,56 @@ impl Screen{
             .wrap(Wrap { trim: true });
 
         frame.render_widget(paragraph, chunks[0]);
+    }
+
+    fn draw_bottom_help_bar<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {
+        let key_bindings = BTreeMap::from([
+            ("q", "Quit"),
+            ("f", "Toggle flag"),
+            ("Enter", "Select cell")
+        ]);
+
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Gray));
+        let text_style: Style = Style::default().fg(Color::Cyan);
+        let mut text: Text = Text::default();
+
+        for (key, description) in key_bindings.into_iter() {
+            text.extend(
+                Text::styled(
+                    format!("{}: {}", key, description),
+                    text_style))
+        }
+
+        let paragraph = Paragraph::new(text)
+            .block(block)
+            .alignment(Alignment::Center);
+        frame.render_widget(paragraph, chunk);
+
+
+        // let mut span_array: Vec<Span> = Vec::default();
+        // for (key, description) in key_bindings {
+        //     let span = Span::styled(
+        //                  format!("{}: {}", key, description),
+        //                  Style::default()
+        //                    .fg(Color::Blue));
+        //     span_array.push(span);
+
+        //     span_array.push(
+        //         Span::styled(
+        //             " \n",
+        //             Style::default())
+        //     );
+        // }
+
+        // let spans = Spans::from(span_array);
+        // let paragraph = Paragraph::new(spans)
+        //     .block(block)
+        //     .alignment(Alignment::Center)
+        //     .wrap(Wrap { trim: true });
+
+        // frame.render_widget(paragraph, chunk);
     }
 
     fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, root_chunk: Rect, board: &Board) {
