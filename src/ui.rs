@@ -208,7 +208,7 @@ impl Screen{
 
     fn draw_cells<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, root_chunk: Rect){
         let mut constraints = vec![];
-        let mut i: i16 = 0;
+        let mut i: usize = 0;
         while i < board.get_board_height() {
             // constraints.push(Constraint::Percentage(100 / (board.get_board_height() as u16)));
             //constraints.push(Constraint::Percentage(10));
@@ -232,7 +232,7 @@ impl Screen{
         let board_width = board.get_board_width();
         // Create the constraints
         let mut constraints = vec![];
-        let mut i: i16 = 0;
+        let mut i: usize = 0;
         while i < board_width {
             // constraints.push(Constraint::Percentage(100 / (board_width as u16)));
             // constraints.push(Constraint::Percentage(10));

@@ -20,7 +20,7 @@ use crate::{
     board::Board,
 };
 
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Clone, Copy)]
 pub enum Difficulty {
     Easy,
     Medium,
@@ -38,7 +38,7 @@ pub struct App{
 impl App {
     pub fn new() -> Self {
         Self {
-            board: Board::new(10, 10),
+            board: Board::new(),
             score: 0,
             start_time: Instant::now(),
             game_over: false,
@@ -87,7 +87,7 @@ impl App {
     }
 
     fn initiate_game(&mut self){
-        self.board.initiate_board(Difficulty::Easy);
+        self.board.initiate_board(self.difficulty);
         self.start_time = Instant::now();
     }
 

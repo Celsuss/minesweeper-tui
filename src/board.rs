@@ -14,8 +14,8 @@ use crate::{
 
 pub struct Board{
     cells: Vec<Cell>,
-    board_width: i16,
-    board_height: i16,
+    board_width: usize,
+    board_height: usize,
     selected_cell_index: usize,
     bomb_count: usize,
     flag_count: usize,
@@ -24,16 +24,16 @@ pub struct Board{
 }
 
 impl Board {
-    pub fn new(width: i16, height: i16) -> Self {
+    pub fn new() -> Self {
         Self {
             cells: Vec::new(),
-            board_width: width,
-            board_height: height,
+            board_width: 0,
+            board_height: 0,
             selected_cell_index: 0,
-            bomb_count: 12,
+            bomb_count: 0,
             flag_count: 0,
             board_size_map: HashMap::from([
-                (Difficulty::Easy, (10, 10)),  // TODO Change this to (9, 9)
+                (Difficulty::Easy, (9, 9)),
                 (Difficulty::Medium, (16, 16)),
                 (Difficulty::Hard, (30, 16)),
             ]),
@@ -46,12 +46,12 @@ impl Board {
     }
 
     pub fn initiate_board(&mut self, difficulty: Difficulty){
-        let width: usize = self.board_size_map[&difficulty].0;
-        let height: usize = self.board_size_map[&difficulty].1;
-        let bombs: usize = self.board_bombs_map[&difficulty];
+        self.board_width = self.board_size_map[&difficulty].0;
+        self.board_height = self.board_size_map[&difficulty].1;
+        self.bomb_count = self.board_bombs_map[&difficulty];
 
-        self.create_cells((width * height) as usize);
-        self.add_bombs(bombs as i16);
+        self.create_cells((self.board_width * self.board_height) as usize);
+        self.add_bombs(self.bomb_count as i16);
         self.update_cell_values();
     }
 
@@ -99,8 +99,8 @@ impl Board {
     }
 
     fn get_index_from_pos(&self, x: i16, y: i16) -> Option<usize> {
-        if x < 0 || x >= self.board_width ||
-            y < 0 || y >= self.board_height {
+        if x < 0 || x >= self.board_width as i16 ||
+            y < 0 || y >= self.board_height as i16 {
                 return None;
             }
 
@@ -108,16 +108,16 @@ impl Board {
     }
 
     fn get_pos_from_index(&self, index: i16) -> (i16, i16) {
-        let y = index / self.board_width;
-        let x = index - (y * self.board_width);
+        let y = index / (self.board_width as i16);
+        let x = index - (y * (self.board_width as i16));
         (x, y)
     }
 
-    pub fn get_board_width(&self) -> i16{
+    pub fn get_board_width(&self) -> usize {
         self.board_width
     }
 
-    pub fn get_board_height(&self) -> i16{
+    pub fn get_board_height(&self) -> usize {
         self.board_height
     }
 
@@ -128,10 +128,10 @@ impl Board {
     pub fn change_active_cell(&mut self, input_event: InputEvent) {
         match input_event {
             InputEvent::Navigation(Direction::Up)  => {
-                self.set_active_cell(self.selected_cell_index as i16 - self.board_width);
+                self.set_active_cell(self.selected_cell_index as i16 - self.board_width as i16);
             },
             InputEvent::Navigation(Direction::Down)  => {
-                self.set_active_cell(self.selected_cell_index as i16 + self.board_width);
+                self.set_active_cell(self.selected_cell_index as i16 + self.board_width as i16);
             },
             InputEvent::Navigation(Direction::Left)  => {
                 self.set_active_cell(self.selected_cell_index as i16 - 1);
@@ -180,5 +180,14 @@ impl Board {
 
     pub fn get_flag_count(&self) -> usize {
         self.flag_count
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn example() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
     }
 }
