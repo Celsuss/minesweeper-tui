@@ -54,7 +54,7 @@ impl Screen{
                 .margin(1)
                 .split(f.size());
 
-            self.draw_top_menu(f, app, time, chunks[0]);
+            self.draw_top_menu(f, app, board, time, chunks[0]);
             self.draw_board(f, app, chunks[1], board);
             self.draw_bottom_help_bar(f, chunks[2]);
         })?;
@@ -62,8 +62,9 @@ impl Screen{
         Ok(())
     }
 
-    fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, time: Duration, root_chunk: Rect){
-        let score = app.get_score();
+    fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, board: &Board, time: Duration, root_chunk: Rect){
+        let mine_count = board.get_bomb_count();
+        let flag_count = board.get_flag_count();
         let text_style = Style::default().fg(Color::Cyan);
 
         // Create the constraints
@@ -81,7 +82,7 @@ impl Screen{
 
         let mut span_vec = vec![
             Span::styled(
-                format!("# mines: {}", score),
+                format!("# mines: {}", mine_count as i16 - flag_count as i16),
                 text_style
             ),
             Span::styled(

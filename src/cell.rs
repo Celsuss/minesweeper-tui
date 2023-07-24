@@ -73,6 +73,10 @@ impl Cell {
         self.is_bomb = is_bomb;
     }
 
+    pub fn is_flagged(&self) -> bool {
+        self.is_flagged
+    }
+
     pub fn toggle_is_flagged(&mut self) {
         if self.is_hidden == false {
             return

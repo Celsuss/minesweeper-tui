@@ -15,7 +15,9 @@ pub struct Board{
     cells: Vec<Cell>,
     board_width: i16,
     board_height: i16,
-    selected_cell_index: usize
+    selected_cell_index: usize,
+    bomb_count: usize,
+    flag_count: usize,
 }
 
 impl Board {
@@ -24,7 +26,9 @@ impl Board {
             cells: Vec::new(),
             board_width: width,
             board_height: height,
-            selected_cell_index: 0
+            selected_cell_index: 0,
+            bomb_count: 10,
+            flag_count: 0
         }
     }
 
@@ -128,6 +132,12 @@ impl Board {
 
     pub fn toggle_active_cell_flag(&mut self) {
         self.cells[self.selected_cell_index].toggle_is_flagged();
+        if self.cells[self.selected_cell_index].is_flagged() {
+            self.flag_count += 1;
+        }
+        else {
+            self.flag_count -= 1;
+        }
     }
 
     fn set_active_cell(&mut self, index: i16){
@@ -145,5 +155,13 @@ impl Board {
         if self.cells[self.selected_cell_index].is_bomb() {
             *game_over = true;
         }
+    }
+
+    pub fn get_bomb_count(&self) -> usize {
+        self.bomb_count
+    }
+
+    pub fn get_flag_count(&self) -> usize {
+        self.flag_count
     }
 }
