@@ -1,5 +1,5 @@
 
-use std::ptr::null;
+use std::{ptr::null, collections::{hash_map, HashMap}};
 
 use rand::Rng;
 
@@ -9,6 +9,7 @@ use crate::{
         InputEvent,
         Direction,
     },
+    app::Difficulty,
 };
 
 pub struct Board{
@@ -18,6 +19,8 @@ pub struct Board{
     selected_cell_index: usize,
     bomb_count: usize,
     flag_count: usize,
+    board_size_map: HashMap<Difficulty, (usize, usize)>,
+    board_bombs_map: HashMap<Difficulty, usize>,
 }
 
 impl Board {
@@ -27,18 +30,28 @@ impl Board {
             board_width: width,
             board_height: height,
             selected_cell_index: 0,
-            bomb_count: 10,
-            flag_count: 0
+            bomb_count: 12,
+            flag_count: 0,
+            board_size_map: HashMap::from([
+                (Difficulty::Easy, (10, 10)),  // TODO Change this to (9, 9)
+                (Difficulty::Medium, (16, 16)),
+                (Difficulty::Hard, (30, 16)),
+            ]),
+            board_bombs_map: HashMap::from([
+                (Difficulty::Easy, 10),
+                (Difficulty::Medium, 32),
+                (Difficulty::Hard, 60),
+            ])
         }
     }
 
-    pub fn initiate_board(&mut self, width: i16, height: i16){
-        if width == 0 || height == 0 {
-            return;
-        }
+    pub fn initiate_board(&mut self, difficulty: Difficulty){
+        let width: usize = self.board_size_map[&difficulty].0;
+        let height: usize = self.board_size_map[&difficulty].1;
+        let bombs: usize = self.board_bombs_map[&difficulty];
 
         self.create_cells((width * height) as usize);
-        self.add_bombs(10);
+        self.add_bombs(bombs as i16);
         self.update_cell_values();
     }
 
@@ -50,9 +63,13 @@ impl Board {
     }
 
     fn add_bombs(&mut self, bomb_count: i16){
+        self.bomb_count = bomb_count as usize;
         let mut rng = rand::thread_rng();
         for _i in 0..bomb_count {
-            let index = rng.gen_range(0..self.cells.len());
+            let mut index = rng.gen_range(0..self.cells.len());
+            while self.cells[index].is_bomb() {
+                index = rng.gen_range(0..self.cells.len());
+            }
             self.cells[index].set_is_bomb(true);
         }
     }
@@ -61,7 +78,7 @@ impl Board {
         for i in 0..self.cells.len() {
             let cell: &Cell = &self.cells[i];
 
-            // Continue if this is not a bomb, if it is increase score of all adjacant cells
+            // Continue if this is not a bomb, if it is increase score of all adjacent cells
             if !cell.is_bomb() {
                 continue;
             }
