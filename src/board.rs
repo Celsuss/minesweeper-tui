@@ -57,7 +57,7 @@ impl Board {
 
     fn create_cells(&mut self, cell_count: usize){
         for _i in 0..cell_count {
-                self.cells.push(Cell::new(16, 16));
+                self.cells.push(Cell::new());
         }
         self.cells[self.selected_cell_index].set_is_selected(true);
     }

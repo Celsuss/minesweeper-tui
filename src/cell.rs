@@ -13,8 +13,6 @@ use crate::{
 };
 
 pub struct Cell {
-    width: i16,
-    height: i16,
     value: i32,
     is_hidden: bool,
     is_bomb: bool,
@@ -53,10 +51,8 @@ impl<B: Backend> Draw<B> for Cell {
 }
 
 impl Cell {
-    pub fn new(width: i16, height: i16) -> Self {
+    pub fn new() -> Self {
         Self {
-            width: (width),
-            height: (height),
             value: 0,
             is_hidden: true,
             is_bomb: false,
