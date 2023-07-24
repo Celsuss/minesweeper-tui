@@ -140,7 +140,10 @@ impl Board {
         self.selected_cell_index = index as usize;
     }
 
-    pub fn select_active_cell(&mut self) {
+    pub fn select_active_cell(&mut self, game_over: &mut bool) {
         self.cells[self.selected_cell_index].select();
+        if self.cells[self.selected_cell_index].is_bomb() {
+            *game_over = true;
+        }
     }
 }

@@ -34,7 +34,7 @@ impl Screen{
         }
     }
 
-    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board: &Board, time: Duration) -> io::Result<()> {
+    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board: &Board, time: Duration, game_over: bool) -> io::Result<()> {
         terminal.draw(|f| {
             let size = f.size();
             let block = Block::default()
@@ -79,25 +79,40 @@ impl Screen{
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::Gray));
 
-        let spans = Spans::from(vec![
+        let mut span_vec = vec![
             Span::styled(
-                format!("Score: {}", score),
+                format!("# mines: {}", score),
                 text_style
             ),
-            Span::raw(" "),
+            Span::styled(
+                " - ",
+                text_style
+            ),
+        ];
+
+        if app.get_game_over() {
+            span_vec.push(
+                Span::styled(
+                    "Game Over",
+                    text_style
+                )
+            );
+            span_vec.push(
+                Span::styled(
+                    " - ",
+                    text_style
+                )
+            );
+        }
+
+        span_vec.push(
             Span::styled(
                 format!("Time: {}", time.as_secs().to_string()),
                 text_style
             ),
-        ]);
+        );
 
-        // let span = Span::styled(
-        //     "Score: {score}",
-        //     Style::default()
-        //         .fg(Color::Yellow)
-        //         .add_modifier(Modifier::BOLD)
-        // );
-
+        let spans = Spans::from(span_vec);
         let paragraph = Paragraph::new(spans)
             .block(block)
             .alignment(Alignment::Center)

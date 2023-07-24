@@ -124,6 +124,9 @@ impl Cell {
         if self.is_flagged == true {
             return Color::Red;
         }
+        else if self.is_bomb {
+            return Color::Red;
+        }
 
         match self.value {
             1 => return Color::Blue,
