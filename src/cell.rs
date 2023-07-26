@@ -13,8 +13,8 @@ use crate::{
 };
 
 pub struct Cell {
-    value: i32,
-    is_hidden: bool,
+    value: i16,
+    is_open: bool,
     is_bomb: bool,
     is_flagged: bool,
     is_selected: bool,
@@ -30,7 +30,7 @@ impl<B: Backend> Draw<B> for Cell {
             .border_style(Style::default().fg(border_color))
             .style(Style::default().bg(Color::Black));
 
-        if self.is_hidden == false || self.is_flagged {
+        if self.is_open || self.is_flagged {
             let span = Span::styled(
                 self.get_cell_text(),
                 Style::default()
@@ -54,7 +54,7 @@ impl Cell {
     pub fn new() -> Self {
         Self {
             value: 0,
-            is_hidden: true,
+            is_open: false,
             is_bomb: false,
             is_flagged: false,
             is_selected: false
@@ -74,7 +74,7 @@ impl Cell {
     }
 
     pub fn toggle_is_flagged(&mut self) {
-        if self.is_hidden == false {
+        if self.is_open {
             return
         }
 
@@ -85,13 +85,21 @@ impl Cell {
         self.is_selected = is_selected;
     }
 
-    pub fn select(&mut self) {
-        self.is_hidden = false;
+    pub fn open(&mut self) {
+        self.is_open = true;
         self.is_flagged = false;
     }
 
     pub fn increment_value(&mut self) {
         self.value += 1;
+    }
+
+    pub fn get_value(&self) -> i16 {
+        self.value
+    }
+
+    pub fn is_open(&self) -> bool {
+        self.is_open
     }
 
     fn get_cell_text(&self) -> String {
@@ -113,7 +121,7 @@ impl Cell {
         else if self.is_selected {
             return Color::Green;
         }
-        else if self.is_hidden {
+        else if self.is_open == false {
             return Color::Gray;
         }
 

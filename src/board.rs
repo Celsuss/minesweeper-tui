@@ -83,7 +83,7 @@ impl Board {
             }
 
             // Iterate over the neighbors and increment their values
-            let neighbors_indexes: Vec<usize> = self.get_cell_neighbors_indexes(i as i16);
+            let neighbors_indexes: Vec<usize> = self.get_cell_neighbors_indices(i as i16);
             for i in neighbors_indexes {
                 self.cells[i].increment_value();
             }
@@ -156,9 +156,12 @@ impl Board {
     }
 
     pub fn select_active_cell(&mut self, game_over: &mut bool) {
-        self.cells[self.selected_cell_index].select();
+        self.cells[self.selected_cell_index].open();
         if self.cells[self.selected_cell_index].is_bomb() {
             *game_over = true;
+        }
+        else if self.cells[self.selected_cell_index].get_value() == 0 {
+            self.open_adjacent_cells(self.selected_cell_index);
         }
     }
 
@@ -170,7 +173,19 @@ impl Board {
         self.flag_count
     }
 
-    fn get_cell_neighbors_indexes(&self, index: i16) -> Vec<usize> {
+    fn open_adjacent_cells(&mut self, current_index: usize) {
+        let indices = self.get_cell_neighbors_indices(current_index as i16);
+
+        for index in indices {
+            let cell: &mut Cell = &mut self.cells[index];
+            if cell.get_value() == 0 && cell.is_open() {
+                cell.open();
+                // self.open_adjacent_cells(index);
+            }
+        }
+    }
+
+    fn get_cell_neighbors_indices(&self, index: i16) -> Vec<usize> {
         let mut neighbors = vec![];
         let pos: (i16, i16) = self.get_pos_from_index(index as i16);
         for j in 0..3 {
