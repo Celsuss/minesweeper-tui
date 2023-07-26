@@ -1,6 +1,5 @@
 
-use std::{ptr::null, collections::{hash_map, HashMap}};
-
+use std::collections::HashMap;
 use rand::Rng;
 
 use crate::{
@@ -143,10 +142,6 @@ impl Board {
         }
     }
 
-    // pub fn get_active_cell(&self) -> &Cell {
-    //     &self.cells[self.selected_cell_index]
-    // }
-
     pub fn toggle_active_cell_flag(&mut self) {
         self.cells[self.selected_cell_index].toggle_is_flagged();
         if self.cells[self.selected_cell_index].is_flagged() {
@@ -185,9 +180,68 @@ impl Board {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
-    fn example() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn test_board_sizes() {
+        let mut board: Board = Board::new();
+        board.initiate_board(Difficulty::Easy);
+        assert_eq!(board.get_board_height(), 9);
+        assert_eq!(board.get_board_width(), 9);
+
+        board.initiate_board(Difficulty::Medium);
+        assert_eq!(board.get_board_height(), 16);
+        assert_eq!(board.get_board_width(), 16);
+
+        board.initiate_board(Difficulty::Hard);
+        assert_eq!(board.get_board_height(), 16);
+        assert_eq!(board.get_board_width(), 30);
+    }
+
+    #[test]
+    fn test_board_bomb_count() {
+        let mut board: Board = Board::new();
+        board.initiate_board(Difficulty::Easy);
+        assert_eq!(board.get_bomb_count(), 10);
+
+        board.initiate_board(Difficulty::Medium);
+        assert_eq!(board.get_bomb_count(), 32);
+
+        board.initiate_board(Difficulty::Hard);
+        assert_eq!(board.get_bomb_count(), 60);
+    }
+
+    #[test]
+    fn test_change_active_cell(){
+        let mut board: Board = Board::new();
+
+        // Test change active cell without initiating the board
+        board.change_active_cell(InputEvent::Navigation(Direction::Up));
+
+        // Test increment active cell
+        board.initiate_board(Difficulty::Easy);
+        assert_eq!(board.selected_cell_index, 0);
+        board.change_active_cell(InputEvent::Navigation(Direction::Right));
+        assert_eq!(board.selected_cell_index, 1);
+
+        // Test decrease active cell back
+        board.change_active_cell(InputEvent::Navigation(Direction::Left));
+        assert_eq!(board.selected_cell_index, 0);
+
+        // Test go down one row
+        board.change_active_cell(InputEvent::Navigation(Direction::Down));
+        assert_eq!(board.selected_cell_index, board.board_width);
+
+        // Test go back up one row
+        board.change_active_cell(InputEvent::Navigation(Direction::Up));
+        assert_eq!(board.selected_cell_index, 0);
+
+        // Test decrease from 0
+        board.change_active_cell(InputEvent::Navigation(Direction::Left));
+        assert_eq!(board.selected_cell_index, 0);
+
+        // Test go up one row from first row
+        board.change_active_cell(InputEvent::Navigation(Direction::Up));
+        assert_eq!(board.selected_cell_index, 0);
     }
 }
