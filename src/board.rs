@@ -178,9 +178,9 @@ impl Board {
 
         for index in indices {
             let cell: &mut Cell = &mut self.cells[index];
-            if cell.get_value() == 0 && cell.is_open() {
+            if cell.get_value() == 0 && !cell.is_open() {
                 cell.open();
-                // self.open_adjacent_cells(index);
+                self.open_adjacent_cells(index);
             }
         }
     }
