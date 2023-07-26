@@ -82,17 +82,10 @@ impl Board {
                 continue;
             }
 
-            // Convert index to x, y position
-            let pos: (i16, i16) = self.get_pos_from_index(i as i16);
-            for j in 0..3 {
-                for k in 0..3 {
-                    let neighbor_pos: (i16, i16) = (pos.0 + (k-1), pos.1 + (j-1));
-
-                    let neighbor_index = self.get_index_from_pos(neighbor_pos.0, neighbor_pos.1);
-                    if neighbor_index.is_some() == true {
-                        self.cells[neighbor_index.unwrap()].increment_value();
-                    }
-                }
+            // Iterate over the neighbors and increment their values
+            let neighbors_indexes: Vec<usize> = self.get_cell_neighbors_indexes(i as i16);
+            for i in neighbors_indexes {
+                self.cells[i].increment_value();
             }
         }
     }
@@ -177,18 +170,19 @@ impl Board {
         self.flag_count
     }
 
-    fn get_active_cells_neighbors(&self) {
-        let pos: (i16, i16) = self.get_pos_from_index(self.selected_cell_index as i16);
+    fn get_cell_neighbors_indexes(&self, index: i16) -> Vec<usize> {
+        let mut neighbors = vec![];
+        let pos: (i16, i16) = self.get_pos_from_index(index as i16);
         for j in 0..3 {
             for k in 0..3 {
                 let neighbor_pos: (i16, i16) = (pos.0 + (k-1), pos.1 + (j-1));
-
                 let neighbor_index = self.get_index_from_pos(neighbor_pos.0, neighbor_pos.1);
-                if neighbor_index.is_some() == true {
-                    
+                if neighbor_index.is_some() == true && neighbor_index.unwrap() != index as usize {
+                    neighbors.push(neighbor_index.unwrap());
                 }
             }
         }
+        neighbors
     }
 }
 
@@ -267,6 +261,7 @@ mod tests {
         assert_eq!(board.get_pos_from_index(0), (0, 0));
         assert_eq!(board.get_pos_from_index(1), (1, 0));
         assert_eq!(board.get_pos_from_index(board.board_width as i16), (0, 1));
+        // TODO: Write more tests
     }
 
     #[test]
@@ -277,5 +272,6 @@ mod tests {
         assert_eq!(board.get_index_from_pos(0, 0).unwrap(), 0);
         assert_eq!(board.get_index_from_pos(1, 0).unwrap(), 1);
         assert_eq!(board.get_index_from_pos(0, 1).unwrap(), board.board_width);
+        // TODO: Write more tests
     }
 }
