@@ -176,6 +176,20 @@ impl Board {
     pub fn get_flag_count(&self) -> usize {
         self.flag_count
     }
+
+    fn get_active_cells_neighbors(&self) {
+        let pos: (i16, i16) = self.get_pos_from_index(self.selected_cell_index as i16);
+        for j in 0..3 {
+            for k in 0..3 {
+                let neighbor_pos: (i16, i16) = (pos.0 + (k-1), pos.1 + (j-1));
+
+                let neighbor_index = self.get_index_from_pos(neighbor_pos.0, neighbor_pos.1);
+                if neighbor_index.is_some() == true {
+                    
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -243,5 +257,25 @@ mod tests {
         // Test go up one row from first row
         board.change_active_cell(InputEvent::Navigation(Direction::Up));
         assert_eq!(board.selected_cell_index, 0);
+    }
+
+    #[test]
+    fn test_get_pos_from_index(){
+        let mut board: Board = Board::new();
+        board.initiate_board(Difficulty::Easy);
+
+        assert_eq!(board.get_pos_from_index(0), (0, 0));
+        assert_eq!(board.get_pos_from_index(1), (1, 0));
+        assert_eq!(board.get_pos_from_index(board.board_width as i16), (0, 1));
+    }
+
+    #[test]
+    fn test_get_index_from_pos(){
+        let mut board: Board = Board::new();
+        board.initiate_board(Difficulty::Easy);
+
+        assert_eq!(board.get_index_from_pos(0, 0).unwrap(), 0);
+        assert_eq!(board.get_index_from_pos(1, 0).unwrap(), 1);
+        assert_eq!(board.get_index_from_pos(0, 1).unwrap(), board.board_width);
     }
 }
