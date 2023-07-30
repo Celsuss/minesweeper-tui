@@ -27,8 +27,7 @@ impl<B: Backend> Draw<B> for Cell {
         // code to actually draw a select box
         let block = Block::default()
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(border_color))
-            .style(Style::default().bg(Color::Black));
+            .border_style(Style::default().fg(border_color));
 
         if self.is_open || self.is_flagged {
             let span = Span::styled(

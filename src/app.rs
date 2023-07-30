@@ -32,6 +32,7 @@ pub struct App{
     score: i16,
     start_time: Instant,
     game_over: bool,
+    victory: bool,
     difficulty: Difficulty,
 }
 
@@ -42,6 +43,7 @@ impl App {
             score: 0,
             start_time: Instant::now(),
             game_over: false,
+            victory: false,
             difficulty: Difficulty::Easy,
         }
     }
@@ -69,8 +71,16 @@ impl App {
                            self.game_over).expect("Failed to draw ui");
 
             match input_listener.handle_input() {
-                InputEvent::Navigation(direction) => self.board.change_active_cell(InputEvent::Navigation(direction)),
-                InputEvent::Select => self.board.select_active_cell(&mut self.game_over),
+                InputEvent::Navigation(direction) => {
+                    if !self.game_over {
+                        self.board.change_active_cell(InputEvent::Navigation(direction))
+                    }
+                },
+                InputEvent::Select => {
+                    if !self.game_over {
+                        self.board.select_active_cell(&mut self.game_over)
+                    }
+                },
                 InputEvent::Flag => self.board.toggle_active_cell_flag(),
                 InputEvent::Quit => break,
                 _  => { },

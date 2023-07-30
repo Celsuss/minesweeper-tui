@@ -1,7 +1,7 @@
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
-    widgets::{Block, Borders, Paragraph, Wrap},
+    widgets::{Block, Borders, Paragraph, Wrap, Clear},
     style::{Style, Color, Modifier},
     text::{Spans, Span, Text},
     Frame,
@@ -42,13 +42,12 @@ impl Screen{
                 .borders(Borders::ALL);
             f.render_widget(block, size);
 
-            // TODO: Draw top menu and board
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints(
                     [
                         Constraint::Length(3),
-                        Constraint::Min(5),
+                        Constraint::Min(board.get_board_height() as u16 * self.cell_size),
                         Constraint::Length(5),
                     ].as_ref())
                 .margin(1)
@@ -56,10 +55,49 @@ impl Screen{
 
             self.draw_top_menu(f, app, board, time, chunks[0]);
             self.draw_board(f, app, chunks[1], board);
+            if app.get_game_over() {
+                self.draw_game_over(f, chunks[1]);
+            }
             self.draw_bottom_help_bar(f, chunks[2]);
         })?;
 
         Ok(())
+    }
+
+    fn draw_game_over<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {
+        let chunk = self.get_cell_center_chunk(chunk, 30, 5);
+        let block = Block::default()
+            .style(Style::default().fg(Color::Blue).bg(Color::Red))
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Gray));
+
+        let text_style: Style = self.get_text_style();
+
+        let paragraph = Paragraph::new(
+            Text::styled("Game over", text_style))
+            .block(block)
+            .alignment(Alignment::Center);
+
+        frame.render_widget(Clear, chunk);
+        frame.render_widget(paragraph, chunk);
+    }
+
+    fn draw_victory<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {
+        let chunk = self.get_cell_center_chunk(chunk, 30, 5);
+        let block = Block::default()
+            .style(Style::default().fg(Color::Blue).bg(Color::Red))
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Gray));
+
+        let text_style: Style = self.get_text_style();
+
+        let paragraph = Paragraph::new(
+            Text::styled("Victory", text_style))
+            .block(block)
+            .alignment(Alignment::Center);
+
+        frame.render_widget(Clear, chunk);
+        frame.render_widget(paragraph, chunk);
     }
 
     fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, board: &Board, time: Duration, root_chunk: Rect){
@@ -144,54 +182,27 @@ impl Screen{
 
         let paragraph = Paragraph::new(text)
             .block(block)
-            
             .alignment(Alignment::Center);
         frame.render_widget(paragraph, chunk);
-
-
-        // let mut span_array: Vec<Span> = Vec::default();
-        // for (key, description) in key_bindings {
-        //     let span = Span::styled(
-        //                  format!("{}: {}", key, description),
-        //                  Style::default()
-        //                    .fg(Color::Blue));
-        //     span_array.push(span);
-
-        //     span_array.push(
-        //         Span::styled(
-        //             " \n",
-        //             Style::default())
-        //     );
-        // }
-
-        // let spans = Spans::from(span_array);
-        // let paragraph = Paragraph::new(spans)
-        //     .block(block)
-        //     .alignment(Alignment::Center)
-        //     .wrap(Wrap { trim: true });
-
-        // frame.render_widget(paragraph, chunk);
     }
 
     fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, chunk: Rect, board: &Board) {
         // Create the vertical constraints
-        let center_chunk = self.get_cell_center_chunk(chunk, board);
+        let width = board.get_board_width() as u16 * self.cell_size;
+        let height = board.get_board_height() as u16 * self.cell_size;
+        let center_chunk = self.get_cell_center_chunk(chunk, width, height);
         self.draw_cells(frame, board, center_chunk);
     }
 
-    fn get_cell_center_chunk(&self, chunk: Rect, board: &Board) -> Rect {
-        let cells_width = board.get_board_width() as u16 * self.cell_size;
-        let cells_height = board.get_board_height() as u16 * self.cell_size;
-
-        let blank_width = (chunk.width - cells_width) / 2;
-        let blank_height = (chunk.height - cells_height) / 2;
-
+    fn get_cell_center_chunk(&self, chunk: Rect, width: u16, height: u16) -> Rect {
+        let blank_width = (chunk.width - width) / 2;
+        let blank_height = (chunk.height - height) / 2;
 
         let vertical_chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Max(blank_height),
-                Constraint::Length(cells_height),
+                Constraint::Length(height),
                 Constraint::Max(blank_height)])
             .margin(0)
             .split(chunk);
@@ -200,7 +211,7 @@ impl Screen{
             .direction(Direction::Horizontal)
             .constraints([
                 Constraint::Max(blank_width),
-                Constraint::Length(cells_width),
+                Constraint::Length(width),
                 Constraint::Max(blank_width)])
             .margin(0)
             .split(vertical_chunks[1])[1]
@@ -210,8 +221,6 @@ impl Screen{
         let mut constraints = vec![];
         let mut i: usize = 0;
         while i < board.get_board_height() {
-            // constraints.push(Constraint::Percentage(100 / (board.get_board_height() as u16)));
-            //constraints.push(Constraint::Percentage(10));
             constraints.push(Constraint::Length(self.cell_size));
             i += 1;
         }
@@ -234,8 +243,6 @@ impl Screen{
         let mut constraints = vec![];
         let mut i: usize = 0;
         while i < board_width {
-            // constraints.push(Constraint::Percentage(100 / (board_width as u16)));
-            // constraints.push(Constraint::Percentage(10));
             constraints.push(Constraint::Length(self.cell_size));
             i += 1;
         }
