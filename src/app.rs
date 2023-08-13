@@ -96,6 +96,12 @@ impl App {
                     self.board.select_active_cell(&mut self.game_over)
                 }
             },
+            InputEvent::GameDifficulty(difficulty) => {
+                if self.game_over {
+                   self.difficulty = difficulty;
+                    self.initiate_game();
+                }
+            }
             InputEvent::Flag => self.board.toggle_active_cell_flag(),
             InputEvent::Quit => self.quit = true,
             _  => { },
@@ -103,6 +109,7 @@ impl App {
     }
 
     fn initiate_game(&mut self){
+        self.game_over = false;
         self.board.initiate_board(self.difficulty);
         self.start_time = Instant::now();
     }

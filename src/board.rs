@@ -49,6 +49,9 @@ impl Board {
         self.board_height = self.board_size_map[&difficulty].1;
         self.bomb_count = self.board_bombs_map[&difficulty];
 
+        self.cells.clear();
+        self.selected_cell_index = 0;
+
         self.create_cells((self.board_width * self.board_height) as usize);
         self.add_bombs(self.bomb_count as i16);
         self.update_cell_values();
