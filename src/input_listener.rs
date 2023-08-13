@@ -7,6 +7,8 @@ use crossterm::{
     event::{self, Event, KeyEvent, KeyCode, KeyModifiers},
 };
 
+use crate::app::Difficulty;
+
 #[derive(PartialEq, Eq)]
 pub enum Direction {
     Up,
@@ -24,6 +26,7 @@ pub enum Action {
 pub enum InputEvent {
     Input(KeyEvent),
     Navigation(Direction),
+    GameDifficulty(Difficulty),
     Select,
     Flag,
     Tick,
@@ -53,6 +56,9 @@ impl<'a> InputListener<'a> {
                 KeyEvent{ code: KeyCode::Char('a'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Left),
                 KeyEvent{ code: KeyCode::Char('w'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Up),
                 KeyEvent{ code: KeyCode::Char('s'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::Navigation(Direction::Down),
+                KeyEvent{ code: KeyCode::Char('e'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::GameDifficulty(Difficulty::Easy),
+                KeyEvent{ code: KeyCode::Char('m'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::GameDifficulty(Difficulty::Medium),
+                KeyEvent{ code: KeyCode::Char('h'), modifiers: KeyModifiers::NONE, ..} => return InputEvent::GameDifficulty(Difficulty::Hard),
                 KeyEvent{ code: KeyCode::Enter, modifiers: KeyModifiers::NONE, ..} => return InputEvent::Select,
                 _ => InputEvent::Input(input),
             },

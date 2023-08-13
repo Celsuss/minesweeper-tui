@@ -33,6 +33,7 @@ pub struct App{
     start_time: Instant,
     game_over: bool,
     victory: bool,
+    quit: bool,
     difficulty: Difficulty,
 }
 
@@ -44,6 +45,7 @@ impl App {
             start_time: Instant::now(),
             game_over: false,
             victory: false,
+            quit: false,
             difficulty: Difficulty::Easy,
         }
     }
@@ -62,7 +64,7 @@ impl App {
         self.initiate_game();
 
         // Game loop
-        loop {
+        while !self.quit {
             let game_duration: Duration = Instant::now() - self.start_time;
             screen.draw_ui(&mut terminal,
                            self,
@@ -70,21 +72,7 @@ impl App {
                            game_duration,
                            self.game_over).expect("Failed to draw ui");
 
-            match input_listener.handle_input() {
-                InputEvent::Navigation(direction) => {
-                    if !self.game_over {
-                        self.board.change_active_cell(InputEvent::Navigation(direction))
-                    }
-                },
-                InputEvent::Select => {
-                    if !self.game_over {
-                        self.board.select_active_cell(&mut self.game_over)
-                    }
-                },
-                InputEvent::Flag => self.board.toggle_active_cell_flag(),
-                InputEvent::Quit => break,
-                _  => { },
-            }
+            self.handle_input(&input_listener);
         }
 
         execute!(
@@ -96,6 +84,24 @@ impl App {
         Ok(())
     }
 
+    fn handle_input(&mut self, input_listener: &InputListener) {
+        match input_listener.handle_input() {
+            InputEvent::Navigation(direction) => {
+                if !self.game_over {
+                    self.board.change_active_cell(InputEvent::Navigation(direction))
+                }
+            },
+            InputEvent::Select => {
+                if !self.game_over {
+                    self.board.select_active_cell(&mut self.game_over)
+                }
+            },
+            InputEvent::Flag => self.board.toggle_active_cell_flag(),
+            InputEvent::Quit => self.quit = true,
+            _  => { },
+        }
+    }
+
     fn initiate_game(&mut self){
         self.board.initiate_board(self.difficulty);
         self.start_time = Instant::now();
@@ -105,7 +111,11 @@ impl App {
         self.score
     }
 
-    pub fn get_game_over(&self) -> bool {
+    pub fn get_is_game_over(&self) -> bool {
         self.game_over
+    }
+
+    pub fn get_is_victory(&self) -> bool {
+        self.victory
     }
 }
