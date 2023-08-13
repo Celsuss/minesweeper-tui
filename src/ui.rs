@@ -55,8 +55,11 @@ impl Screen{
 
             self.draw_top_menu(f, app, board, time, chunks[0]);
             self.draw_board(f, app, chunks[1], board);
-            if app.get_game_over() {
-                self.draw_game_over(f, chunks[1]);
+            if app.get_is_game_over() {
+                self.draw_game_over_popup(f, chunks[1]);
+            }
+            else if app.get_is_victory() {
+                self.draw_victory_popup(f, chunks[1]);
             }
             self.draw_bottom_help_bar(f, chunks[2]);
         })?;
@@ -64,17 +67,18 @@ impl Screen{
         Ok(())
     }
 
-    fn draw_game_over<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {
-        let chunk = self.get_cell_center_chunk(chunk, 30, 5);
+    fn draw_game_over_popup<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {
+        let chunk = self.get_cell_center_chunk(chunk, 30, 6);
         let block = Block::default()
             .style(Style::default().fg(Color::Blue).bg(Color::Red))
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::Gray));
 
         let text_style: Style = self.get_text_style();
+        let mut text: Text = Text::styled("Game over", text_style);
+        text.extend(self.get_restart_game_text());
 
-        let paragraph = Paragraph::new(
-            Text::styled("Game over", text_style))
+        let paragraph = Paragraph::new(text)
             .block(block)
             .alignment(Alignment::Center);
 
@@ -82,7 +86,7 @@ impl Screen{
         frame.render_widget(paragraph, chunk);
     }
 
-    fn draw_victory<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {
+    fn draw_victory_popup<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {
         let chunk = self.get_cell_center_chunk(chunk, 30, 5);
         let block = Block::default()
             .style(Style::default().fg(Color::Blue).bg(Color::Red))
@@ -90,14 +94,33 @@ impl Screen{
             .style(Style::default().fg(Color::Gray));
 
         let text_style: Style = self.get_text_style();
+        let text: Text = Text::styled("Victory", text_style);
 
-        let paragraph = Paragraph::new(
-            Text::styled("Victory", text_style))
+        let paragraph = Paragraph::new(text)
             .block(block)
             .alignment(Alignment::Center);
 
         frame.render_widget(Clear, chunk);
         frame.render_widget(paragraph, chunk);
+    }
+
+    fn get_restart_game_text(&self) -> Text{
+        let key_bindings = BTreeMap::from([
+            ("e", "Easy"),
+            ("m", "Medium"),
+            ("h", "Hard")
+        ]);
+
+        let text_style: Style = self.get_text_style();
+        let mut text: Text = Text::default();
+
+        for (key, description) in key_bindings.into_iter() {
+            text.extend(
+                Text::styled(
+                    format!("{}: {}", key, description),
+                    text_style))
+        }
+        text
     }
 
     fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, board: &Board, time: Duration, root_chunk: Rect){
@@ -129,7 +152,7 @@ impl Screen{
             ),
         ];
 
-        if app.get_game_over() {
+        if app.get_is_game_over() {
             span_vec.push(
                 Span::styled(
                     "Game Over",
