@@ -55,16 +55,40 @@ impl Screen{
 
             self.draw_top_menu(f, app, board, time, chunks[0]);
             self.draw_board(f, app, chunks[1], board);
-            if app.get_is_game_over() {
-                self.draw_game_over_popup(f, chunks[1]);
+            if app.is_start_up() {
+                self.draw_popup_window(f, chunks[1], "Welcome".to_string()); 
+            }
+            else if app.get_is_game_over() {
+                // self.draw_game_over_popup(f, chunks[1]);
+                self.draw_popup_window(f, chunks[1], "Game over".to_string()); 
             }
             else if app.get_is_victory() {
-                self.draw_victory_popup(f, chunks[1]);
+                // self.draw_victory_popup(f, chunks[1]);
+                self.draw_popup_window(f, chunks[1], "Victory".to_string());
             }
             self.draw_bottom_help_bar(f, chunks[2]);
         })?;
 
         Ok(())
+    }
+
+    fn draw_popup_window<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect, text_str: String) {
+        let chunk = self.get_cell_center_chunk(chunk, 30, 6);
+        let block = Block::default()
+            .style(Style::default().fg(Color::Blue).bg(Color::Red))
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Gray));
+
+        let text_style: Style = self.get_text_style();
+        let mut text: Text = Text::styled(text_str, text_style);
+        text.extend(self.get_restart_game_text());
+
+        let paragraph = Paragraph::new(text)
+            .block(block)
+            .alignment(Alignment::Center);
+
+        frame.render_widget(Clear, chunk);
+        frame.render_widget(paragraph, chunk);
     }
 
     fn draw_game_over_popup<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect) {

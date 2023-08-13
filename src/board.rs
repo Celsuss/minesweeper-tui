@@ -57,6 +57,14 @@ impl Board {
         self.update_cell_values();
     }
 
+    pub fn is_selected_cell_bomb(&self) -> bool {
+        let cell: &Cell = &self.cells[self.selected_cell_index];
+        if cell.is_open() && cell.is_bomb() {
+            return true
+        }
+        false
+    }
+
     fn create_cells(&mut self, cell_count: usize){
         for _i in 0..cell_count {
                 self.cells.push(Cell::new());
@@ -158,12 +166,9 @@ impl Board {
         self.selected_cell_index = index as usize;
     }
 
-    pub fn select_active_cell(&mut self, game_over: &mut bool) {
+    pub fn select_active_cell(&mut self) {
         self.cells[self.selected_cell_index].open();
-        if self.cells[self.selected_cell_index].is_bomb() {
-            *game_over = true;
-        }
-        else if self.cells[self.selected_cell_index].get_value() == 0 {
+        if self.cells[self.selected_cell_index].get_value() == 0 {
             self.open_adjacent_cells(self.selected_cell_index);
         }
     }

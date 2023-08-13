@@ -34,6 +34,8 @@ pub struct App{
     game_over: bool,
     victory: bool,
     quit: bool,
+    start_up: bool,
+    change_difficulty: bool,
     difficulty: Difficulty,
 }
 
@@ -46,6 +48,8 @@ impl App {
             game_over: false,
             victory: false,
             quit: false,
+            start_up: true,
+            change_difficulty: true,
             difficulty: Difficulty::Easy,
         }
     }
@@ -59,9 +63,6 @@ impl App {
 
         let screen: Screen = Screen::new();
         let input_listener: InputListener = InputListener::new(rx);
-
-        // Init game grid cells
-        self.initiate_game();
 
         // Game loop
         while !self.quit {
@@ -93,13 +94,15 @@ impl App {
             },
             InputEvent::Select => {
                 if !self.game_over {
-                    self.board.select_active_cell(&mut self.game_over)
+                    self.board.select_active_cell();
+                    if self.board.is_selected_cell_bomb() {
+                        self.set_is_game_over(true);
+                    }
                 }
             },
             InputEvent::GameDifficulty(difficulty) => {
-                if self.game_over {
-                   self.difficulty = difficulty;
-                    self.initiate_game();
+                if self.change_difficulty {
+                    self.initiate_game(difficulty);
                 }
             }
             InputEvent::Flag => self.board.toggle_active_cell_flag(),
@@ -108,8 +111,13 @@ impl App {
         }
     }
 
-    fn initiate_game(&mut self){
+    fn initiate_game(&mut self, difficulty: Difficulty){
+        self.difficulty = difficulty;
         self.game_over = false;
+        self.victory = false;
+        self.change_difficulty = false;
+        self.start_up = false;
+
         self.board.initiate_board(self.difficulty);
         self.start_time = Instant::now();
     }
@@ -118,11 +126,22 @@ impl App {
         self.score
     }
 
+    fn set_is_game_over(&mut self, game_over: bool) {
+        self.game_over = game_over;
+        if self.game_over {
+            self.change_difficulty = true;
+        }
+    }
+
     pub fn get_is_game_over(&self) -> bool {
         self.game_over
     }
 
     pub fn get_is_victory(&self) -> bool {
         self.victory
+    }
+
+    pub fn is_start_up(&self) -> bool {
+        self.start_up
     }
 }
