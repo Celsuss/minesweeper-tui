@@ -98,6 +98,9 @@ impl App {
                     if self.board.is_selected_cell_bomb() {
                         self.set_is_game_over(true);
                     }
+                    else if self.board.is_all_safe_cells_open() {
+                        self.set_is_victory(true);
+                    }
                 }
             },
             InputEvent::GameDifficulty(difficulty) => {
@@ -135,6 +138,13 @@ impl App {
 
     pub fn get_is_game_over(&self) -> bool {
         self.game_over
+    }
+
+    fn set_is_victory(&mut self, victory: bool) {
+        self.victory = victory;
+        if self.victory {
+            self.change_difficulty = true;
+        }
     }
 
     pub fn get_is_victory(&self) -> bool {

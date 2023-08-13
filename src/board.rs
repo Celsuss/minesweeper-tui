@@ -38,8 +38,8 @@ impl Board {
             ]),
             board_bombs_map: HashMap::from([
                 (Difficulty::Easy, 10),
-                (Difficulty::Medium, 32),
-                (Difficulty::Hard, 60),
+                (Difficulty::Medium, 32), // 40?
+                (Difficulty::Hard, 60), // 99?
             ])
         }
     }
@@ -156,6 +156,11 @@ impl Board {
         }
     }
 
+    pub fn is_all_safe_cells_open(&self) -> bool {
+        let open_cell_count = self.get_open_cell_count();
+        self.cells.len() - open_cell_count - self.bomb_count == 0
+    }
+
     fn set_active_cell(&mut self, index: i16){
         if index < 0 || index >= self.cells.len() as i16 {
             return;
@@ -179,6 +184,16 @@ impl Board {
 
     pub fn get_flag_count(&self) -> usize {
         self.flag_count
+    }
+
+    fn get_open_cell_count(&self) -> usize {
+        let mut open_cell_count: usize = 0;
+        for cell in self.cells.iter() {
+            if cell.is_open() {
+                open_cell_count += 1;
+            }
+        }
+        open_cell_count
     }
 
     fn open_adjacent_cells(&mut self, current_index: usize) {
