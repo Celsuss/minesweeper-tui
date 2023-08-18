@@ -1,6 +1,5 @@
 use std::{
     io,
-    thread,
     time::{Duration, Instant},
     sync::mpsc::Receiver
 };
@@ -75,8 +74,7 @@ impl App {
             screen.draw_ui(&mut terminal,
                            self,
                            &self.board,
-                           game_duration,
-                           self.game_over).expect("Failed to draw ui");
+                           game_duration).expect("Failed to draw ui");
 
             self.handle_input(&input_listener);
         }

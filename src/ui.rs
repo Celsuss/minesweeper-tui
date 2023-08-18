@@ -2,7 +2,7 @@ use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     widgets::{Block, Borders, Paragraph, Wrap, Clear},
-    style::{Style, Color, Modifier},
+    style::{Style, Color},
     text::{Spans, Span, Text},
     Frame,
     Terminal,
@@ -10,7 +10,7 @@ use tui::{
 use std::{
     io,
     time::Duration,
-    collections::{HashMap, BTreeMap},
+    collections::BTreeMap,
 
 };
 
@@ -34,7 +34,7 @@ impl Screen{
         }
     }
 
-    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board: &Board, time: Duration, game_over: bool) -> io::Result<()> {
+    pub fn draw_ui<B: Backend>(&self, terminal: &mut Terminal<B>, app: &App, board: &Board, time: Duration) -> io::Result<()> {
         terminal.draw(|f| {
             let size = f.size();
             let block = Block::default()
@@ -53,8 +53,8 @@ impl Screen{
                 .margin(1)
                 .split(f.size());
 
-            self.draw_top_menu(f, app, board, time, chunks[0]);
-            self.draw_board(f, app, chunks[1], board);
+            self.draw_top_menu(f, board, time, chunks[0]);
+            self.draw_board(f, chunks[1], board);
             self.draw_popup_windows(f, app, chunks[1]);
             self.draw_bottom_help_bar(f, chunks[2]);
         })?;
@@ -112,7 +112,7 @@ impl Screen{
         text
     }
 
-    fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, app: &App, board: &Board, time: Duration, root_chunk: Rect){
+    fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, time: Duration, root_chunk: Rect){
         let mine_count = board.get_bomb_count();
         let flag_count = board.get_flag_count();
         let text_style = Style::default().fg(Color::Cyan);
@@ -180,7 +180,7 @@ impl Screen{
         frame.render_widget(paragraph, chunk);
     }
 
-    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, app: &App, chunk: Rect, board: &Board) {
+    fn draw_board<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect, board: &Board) {
         // Create the vertical constraints
         let width = board.get_board_width() as u16 * self.cell_size;
         let height = board.get_board_height() as u16 * self.cell_size;

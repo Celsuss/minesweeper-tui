@@ -3,9 +3,7 @@ use std::{
     time::{Instant, Duration},
 };
 
-use crossterm::{
-    event::{self, Event, KeyEvent, KeyCode, KeyModifiers},
-};
+use crossterm::event::{self, Event, KeyEvent, KeyCode, KeyModifiers};
 
 use crate::app::Difficulty;
 
@@ -15,11 +13,6 @@ pub enum Direction {
     Down,
     Left,
     Right
-}
-
-#[derive(PartialEq, Eq)]
-pub enum Action {
-    Enter,
 }
 
 #[derive(PartialEq, Eq)]
