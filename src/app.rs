@@ -29,8 +29,8 @@ pub enum Difficulty {
 
 pub struct App{
     board: Board,
-    score: i16,
     start_time: Instant,
+    end_time: Instant,
     game_over: bool,
     victory: bool,
     quit: bool,
@@ -43,8 +43,8 @@ impl App {
     pub fn new() -> Self {
         Self {
             board: Board::new(),
-            score: 0,
             start_time: Instant::now(),
+            end_time: Instant::now(),
             game_over: false,
             victory: false,
             quit: false,
@@ -64,9 +64,14 @@ impl App {
         let screen: Screen = Screen::new();
         let input_listener: InputListener = InputListener::new(rx);
 
+        let mut game_duration: Duration = Instant::now() - self.start_time;
+
         // Game loop
         while !self.quit {
-            let game_duration: Duration = Instant::now() - self.start_time;
+            if !self.game_over {
+                game_duration = Instant::now() - self.start_time;
+            }
+
             screen.draw_ui(&mut terminal,
                            self,
                            &self.board,
@@ -125,14 +130,15 @@ impl App {
         self.start_time = Instant::now();
     }
 
-    pub fn get_score(&self) -> i16 {
-        self.score
+    fn end_game(&mut self) {
+        self.end_time = Instant::now();
+        self.change_difficulty = true;
     }
 
     fn set_is_game_over(&mut self, game_over: bool) {
         self.game_over = game_over;
         if self.game_over {
-            self.change_difficulty = true;
+            self.end_game();
         }
     }
 
@@ -143,7 +149,7 @@ impl App {
     fn set_is_victory(&mut self, victory: bool) {
         self.victory = victory;
         if self.victory {
-            self.change_difficulty = true;
+            self.end_game();
         }
     }
 

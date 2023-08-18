@@ -55,19 +55,23 @@ impl Screen{
 
             self.draw_top_menu(f, app, board, time, chunks[0]);
             self.draw_board(f, app, chunks[1], board);
-            if app.is_start_up() {
-                self.draw_popup_window(f, chunks[1], "Welcome".to_string()); 
-            }
-            else if app.get_is_game_over() {
-                self.draw_popup_window(f, chunks[1], "Game over".to_string()); 
-            }
-            else if app.get_is_victory() {
-                self.draw_popup_window(f, chunks[1], "Victory".to_string());
-            }
+            self.draw_popup_windows(f, app, chunks[1]);
             self.draw_bottom_help_bar(f, chunks[2]);
         })?;
 
         Ok(())
+    }
+
+    fn draw_popup_windows<B: Backend>(&self, frame: &mut Frame<B>, app: &App, chunk: Rect) {
+        if app.is_start_up() {
+            self.draw_popup_window(frame, chunk, "Welcome".to_string()); 
+        }
+        else if app.get_is_game_over() {
+            self.draw_popup_window(frame, chunk, "Game over".to_string()); 
+        }
+        else if app.get_is_victory() {
+            self.draw_popup_window(frame, chunk, "Victory".to_string());
+        }
     }
 
     fn draw_popup_window<B: Backend>(&self, frame: &mut Frame<B>, chunk: Rect, text_str: String) {
@@ -126,7 +130,7 @@ impl Screen{
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::Gray));
 
-        let mut span_vec = vec![
+        let span_vec = vec![
             Span::styled(
                 format!("# mines: {}", mine_count as i16 - flag_count as i16),
                 text_style
@@ -135,29 +139,11 @@ impl Screen{
                 " - ",
                 text_style
             ),
-        ];
-
-        if app.get_is_game_over() {
-            span_vec.push(
-                Span::styled(
-                    "Game Over",
-                    text_style
-                )
-            );
-            span_vec.push(
-                Span::styled(
-                    " - ",
-                    text_style
-                )
-            );
-        }
-
-        span_vec.push(
             Span::styled(
                 format!("Time: {}", time.as_secs().to_string()),
                 text_style
             ),
-        );
+        ];
 
         let spans = Spans::from(span_vec);
         let paragraph = Paragraph::new(spans)
