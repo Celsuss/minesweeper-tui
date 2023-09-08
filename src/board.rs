@@ -205,6 +205,9 @@ impl Board {
                 cell.open();
                 self.open_adjacent_cells(index);
             }
+            else {
+                cell.open();
+            }
         }
     }
 
