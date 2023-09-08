@@ -115,7 +115,7 @@ impl Screen{
     fn draw_top_menu<B: Backend>(&self, frame: &mut Frame<B>, board: &Board, time: Duration, root_chunk: Rect){
         let mine_count = board.get_bomb_count();
         let flag_count = board.get_flag_count();
-        let text_style = Style::default().fg(Color::Cyan);
+        let text_style = self.get_text_style();
 
         // Create the constraints
         let mut constraints = vec![];
