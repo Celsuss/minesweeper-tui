@@ -8,9 +8,7 @@ use tui::{
     text::Span
 };
 
-use crate::{
-    ui::Draw
-};
+use crate::ui::Draw;
 
 pub struct Cell {
     value: i16,
@@ -21,8 +19,8 @@ pub struct Cell {
 }
 
 impl<B: Backend> Draw<B> for Cell {
-    fn draw(&self, frame: &mut Frame<B>, chunk: Rect) {
-        let border_color = self.get_border_color();
+    fn draw(&self, frame: &mut Frame<B>, chunk: Rect, debug: bool) {
+        let border_color = self.get_border_color(debug);
 
         // code to actually draw a select box
         let block = Block::default()
@@ -112,9 +110,9 @@ impl Cell {
         self.value.to_string()
     }
 
-    fn get_border_color(&self) -> Color {
+    fn get_border_color(&self, debug: bool) -> Color {
         // TODO: Remove this if-statement, only for debugging purpose
-        if self.is_bomb {
+        if self.is_bomb && debug {
             return Color::Red;
         }
         else if self.is_selected {

@@ -14,6 +14,7 @@ use crossterm::{
 };
 
 use crate::{
+    Args,
     ui::Screen,
     input_listener::{InputEvent, InputListener},
     board::Board,
@@ -36,10 +37,11 @@ pub struct App{
     start_up: bool,
     change_difficulty: bool,
     difficulty: Difficulty,
+    debug: bool,
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new(args: Args) -> Self {
         Self {
             board: Board::new(),
             start_time: Instant::now(),
@@ -50,6 +52,7 @@ impl App {
             start_up: true,
             change_difficulty: true,
             difficulty: Difficulty::Easy,
+            debug: args.debug,
         }
     }
 
@@ -74,7 +77,8 @@ impl App {
             screen.draw_ui(&mut terminal,
                            self,
                            &self.board,
-                           game_duration).expect("Failed to draw ui");
+                           game_duration,
+                           self.debug).expect("Failed to draw ui");
 
             self.handle_input(&input_listener);
         }
