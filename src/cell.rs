@@ -111,12 +111,11 @@ impl Cell {
     }
 
     fn get_border_color(&self, debug: bool) -> Color {
-        // TODO: Remove this if-statement, only for debugging purpose
         if self.is_bomb && debug {
             return Color::Red;
         }
         else if self.is_selected {
-            return Color::Green;
+            return Color::Cyan;
         }
         else if self.is_open == false {
             return Color::Gray;
@@ -135,13 +134,13 @@ impl Cell {
 
         match self.value {
             1 => return Color::Blue,
-            2 => return Color::Green,
+            2 => return Color::Yellow,
             3 => return Color::LightRed,
             4 => return Color::DarkGray,
             5 => return Color::Red,
-            6 => return Color::Cyan,
-            7 => return Color::Black,
-            8 => return Color::Gray,
+            6 => return Color::Magenta,
+            7 => return Color::Magenta,
+            8 => return Color::Black,
             _ => return Color::White,
         }
     }
