@@ -11,6 +11,7 @@ mod ui;
 mod cell;
 mod input_listener;
 mod board;
+mod scoreboard;
 
 #[derive(Parser)]
 pub struct Args {
