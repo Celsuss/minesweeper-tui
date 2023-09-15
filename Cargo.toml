@@ -10,3 +10,4 @@ tui = "0.19"
 crossterm = "0.25"
 rand =  "0.8"
 clap = { version = "4.0", features = ["derive"] }
+home = "0.5.5"

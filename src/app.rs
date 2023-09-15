@@ -4,7 +4,7 @@ use std::{
     sync::mpsc::Receiver
 };
 use tui::{
-    backend::{CrosstermBackend},
+    backend::CrosstermBackend,
     Terminal
 };
 use crossterm::{
@@ -18,6 +18,7 @@ use crate::{
     ui::Screen,
     input_listener::{InputEvent, InputListener},
     board::Board,
+    scoreboard::Scoreboard,
 };
 
 #[derive(Hash, Eq, PartialEq, Clone, Copy)]
@@ -38,6 +39,7 @@ pub struct App{
     change_difficulty: bool,
     difficulty: Difficulty,
     debug: bool,
+    scoreboard: Scoreboard,
 }
 
 impl App {
@@ -53,6 +55,7 @@ impl App {
             change_difficulty: true,
             difficulty: Difficulty::Easy,
             debug: args.debug,
+            scoreboard: Scoreboard::new(),
         }
     }
 
